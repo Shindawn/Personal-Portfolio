@@ -1,7 +1,18 @@
-// Get API key from environment
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
+/**
+ * geminiService.ts
+ * * This service handles the communication between the portfolio frontend (Vercel)
+ * and the AI logic (Supabase Edge Functions).
+ */
 
-console.log("🔍 Gemini API configured:", API_KEY ? "✅ Ready" : "❌ Missing");
+// 1. Check if Vercel has the necessary connection info
+// We use the names you provided in your Vercel dashboard
+const CHAT_FUNCTION_URL = import.meta.env.VITE_CHAT_FUNCTION_URL;
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+console.log("🤖 Chatbot Status:", {
+  endpoint: CHAT_FUNCTION_URL ? "✅ Linked" : "❌ Missing VITE_CHAT_FUNCTION_URL",
+  auth: SUPABASE_KEY ? "✅ Key Found" : "❌ Missing VITE_SUPABASE_PUBLISHABLE_KEY"
+});
 
 // Fallback Q&A data for when API is unavailable
 const fallbackQA = [
@@ -49,31 +60,48 @@ const getFallbackAnswer = (input: string): string => {
   return "I'm not sure about that, but feel free to ask me about my skills, projects, experience, or reach out via email at caadlawony@gmail.com!";
 };
 
+/**
+ * Main function to get AI response
+ */
 export const getChatResponse = async (userMessage: string): Promise<string> => {
-  // Prefer server-side chat function for security and up-to-date knowledge
-  const CHAT_FUNCTION_URL = import.meta.env.VITE_CHAT_FUNCTION_URL || "/functions/chat"; // set this in your env to your Supabase Function URL
+  // If variables are missing, don't even try the fetch
+  if (!CHAT_FUNCTION_URL || !SUPABASE_KEY) {
+    console.warn("Chatbot: Missing environment variables. Using fallback Q&A.");
+    return getFallbackAnswer(userMessage);
+  }
 
   try {
-    // Attempt to call serverless chat function first
     const resp = await fetch(CHAT_FUNCTION_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: [{ role: "user", content: userMessage }] }),
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${SUPABASE_KEY}`
+      },
+      // We send 'messages' as an array to match your Supabase index.ts validation
+      body: JSON.stringify({ 
+        messages: [{ role: "user", content: userMessage }] 
+      }),
     });
 
     if (resp.ok) {
-      const data = await resp.json().catch(() => ({} as any));
+      const data = await resp.json();
+      console.log("🚀 Chatbot: Server responded successfully!");
+      
+      // Return the 'response' field from your Supabase JSON output
       if (data?.response) return data.response;
-      // if server returns an error shape, fall through to client-side handling
+      
     } else {
-      console.warn("Chat function responded with status", resp.status);
+      console.error(`❌ Chatbot: Server returned status ${resp.status}`);
+      if (resp.status === 401) {
+        console.warn("Hint: Check if 'JWT Verification' is disabled in your Supabase function settings.");
+      }
     }
   } catch (err) {
-    console.warn("Chat function call failed:", err);
+    console.error("🌐 Chatbot: Network error or function unreachable.", err);
   }
 
-  // SECURITY: Do NOT call Gemini from the client. Use the server-side chat function instead.
-  // Fallback to local Q&A when the serverless function is unavailable.
-  console.warn("Chat function unavailable — using local fallback Q&A. Ensure GEMINI_API_KEY is configured on the server.");
+  // Final fallback if anything above fails
+  console.log("ℹ️ Chatbot: Falling back to local Q&A logic.");
   return getFallbackAnswer(userMessage);
 };
