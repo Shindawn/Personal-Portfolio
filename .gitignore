@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Ignore Supabase temp directory (may contain DB URLs/creds)
+supabase/.temp/
