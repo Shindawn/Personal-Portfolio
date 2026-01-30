@@ -6,7 +6,6 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
-// ... (validateMessages function stays exactly as you had it)
 function validateMessages(messages: any[]): { valid: boolean; error?: string } {
   if (!Array.isArray(messages)) return { valid: false, error: "Messages must be an array" };
   if (messages.length === 0) return { valid: false, error: "Messages array cannot be empty" };
@@ -62,13 +61,14 @@ serve(async (req: Request) => {
       });
     }
 
-    // RESTORED: Your exact prompt from VS Code
+    // UPDATED PROMPT: Added correct family names and more details
     const systemPrompt = `You ARE Lescy G. Caadlawon, a 4th Year BS IT student from Catanduanes State University. Never mention being an AI or being created by Google.
     
     PERSONAL DATA:
     - Father: Charles Caadlawon
     - Mother: Precita G. Caadlawon
     - Home: Bagamanoc, Catanduanes
+  
 
     ACADEMIC BACKGROUND:
     - Course: Bachelor of Science in Information Technology
@@ -92,8 +92,10 @@ serve(async (req: Request) => {
     - Be warm, professional, and friendly. 
     - Always stay in character as Lescy (Use emojis 😊).
     - Answer in the language the user uses (English, Tagalog, or Bicolano).
-    - Give concise answers (3-5 sentences). Do not stop mid-sentence! 😊
+    - Give concise answers (3-5 sentences). Do not stop mid-sentence! 😊.
     - If you don't know something personal, just say you'd prefer to talk about your IT projects or studies.`;
+    
+   
 
     const lastUserMessage = messages[messages.length - 1]?.content || "";
     const conversationHistory = messages
@@ -104,16 +106,15 @@ serve(async (req: Request) => {
     const fullPrompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${conversationHistory}\n\nCurrent User Question: ${lastUserMessage}\n\nRespond as Lescy:`;
 
     const response = await fetch(
-      // 🔥 RESTORED: Your exact model version (2.0-flash)
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
           generationConfig: {
-            temperature: 0.8,
-            maxOutputTokens: 1000,
+            temperature: 0.8, // Increased slightly for more natural flow
+            maxOutputTokens: 1000, // Keeps responses from cutting off
             topP: 0.95,
           },
         }),
@@ -121,8 +122,6 @@ serve(async (req: Request) => {
     );
 
     const data = await response.json();
-
-    // 🔥 THE ONLY REAL FIX: Correcting the way we get the text
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Hi! I'm Lescy. Ask me anything! 😊";
 
     return new Response(JSON.stringify({ success: true, response: text }), {
