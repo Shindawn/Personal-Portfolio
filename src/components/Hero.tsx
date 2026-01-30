@@ -6,7 +6,7 @@ import profileImageDark from "@/assets/profile-dark.jpg";
 import { Button } from "@/components/ui/button";
 
 // Base + dynamic roles for typing effect
-const baseRole = "BSIT 4th Year Student Intern";
+const baseRole = "BSIT 4th Year";
 const dynamicRoles = ["UI/UX Designer", "Aspiring Software Developer", "Cybersecurity Enthusiast"];
 
 const ojtRequirements = [

@@ -23,7 +23,7 @@ serve(async (req: Request) => {
 
   const origin = req.headers.get("origin");
   const allowedOrigins = [
-    "https://my-portfolio-phi-eight-76.vercel.app",
+    "https://lescygcaadlawon.vercel.app/",
     "http://localhost:5173", 
     "http://localhost:3000"
   ];
