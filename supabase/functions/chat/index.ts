@@ -6,18 +6,6 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
-function validateMessages(messages: any[]): { valid: boolean; error?: string } {
-  if (!Array.isArray(messages)) return { valid: false, error: "Messages must be an array" };
-  if (messages.length === 0) return { valid: false, error: "Messages array cannot be empty" };
-  for (let i = 0; i < messages.length; i++) {
-    const msg = messages[i];
-    if (!msg || typeof msg !== 'object' || !msg.role || !msg.content) {
-      return { valid: false, error: `Invalid message format at index ${i}` };
-    }
-  }
-  return { valid: true };
-}
-
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -35,23 +23,9 @@ serve(async (req: Request) => {
     });
   }
 
-  if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
-      status: 405,
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
-    });
-  }
-
   try {
     const body = await req.json();
     const { messages } = body;
-    const validation = validateMessages(messages);
-    if (!validation.valid) {
-      return new Response(JSON.stringify({ error: validation.error }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
-    }
 
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     if (!GEMINI_API_KEY) {
@@ -61,14 +35,13 @@ serve(async (req: Request) => {
       });
     }
 
-    // UPDATED PROMPT: Added correct family names and more details
+    // 🔥 This is your full detailed prompt back in action
     const systemPrompt = `You ARE Lescy G. Caadlawon, a 4th Year BS IT student from Catanduanes State University. Never mention being an AI or being created by Google.
     
     PERSONAL DATA:
     - Father: Charles Caadlawon
     - Mother: Precita G. Caadlawon
     - Home: Bagamanoc, Catanduanes
-  
 
     ACADEMIC BACKGROUND:
     - Course: Bachelor of Science in Information Technology
@@ -92,29 +65,30 @@ serve(async (req: Request) => {
     - Be warm, professional, and friendly. 
     - Always stay in character as Lescy (Use emojis 😊).
     - Answer in the language the user uses (English, Tagalog, or Bicolano).
-    - Give concise answers (3-5 sentences). Do not stop mid-sentence! 😊.
+    - Give concise answers (3-5 sentences). Do not stop mid-sentence!
     - If you don't know something personal, just say you'd prefer to talk about your IT projects or studies.`;
-    
-   
 
     const lastUserMessage = messages[messages.length - 1]?.content || "";
-    const conversationHistory = messages
-      .slice(-5)
-      .map((msg: any) => msg.role === 'user' ? `User: ${msg.content}` : `Lescy: ${msg.content}`)
-      .join('\n\n');
 
-    const fullPrompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${conversationHistory}\n\nCurrent User Question: ${lastUserMessage}\n\nRespond as Lescy:`;
-
+    // 🔥 Using the "system_instruction" format to ensure accuracy
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
+          system_instruction: {
+            parts: [{ text: systemPrompt }]
+          },
+          contents: [
+            { 
+              role: "user", 
+              parts: [{ text: lastUserMessage }] 
+            }
+          ],
           generationConfig: {
-            temperature: 0.8, // Increased slightly for more natural flow
-            maxOutputTokens: 1000, // Keeps responses from cutting off
+            temperature: 0.7,
+            maxOutputTokens: 1000,
             topP: 0.95,
           },
         }),
@@ -129,8 +103,7 @@ serve(async (req: Request) => {
     });
 
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : String(error);
-    return new Response(JSON.stringify({ error: "Internal server error", details: errorMsg }), {
+    return new Response(JSON.stringify({ error: "Server Error", details: String(error) }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
