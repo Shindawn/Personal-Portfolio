@@ -1,14 +1,17 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+// CORS headers
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
+// Validation helper
 function validateMessages(messages: any[]): { valid: boolean; error?: string } {
   if (!Array.isArray(messages)) return { valid: false, error: "Messages must be an array" };
   if (messages.length === 0) return { valid: false, error: "Messages array cannot be empty" };
+  
   for (let i = 0; i < messages.length; i++) {
     const msg = messages[i];
     if (!msg || typeof msg !== 'object' || !msg.role || !msg.content) {
@@ -19,11 +22,16 @@ function validateMessages(messages: any[]): { valid: boolean; error?: string } {
 }
 
 serve(async (req: Request) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  // 1. Handle CORS preflight
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
 
+  // 2. Security: Origin Validation
+  // This matches your Vercel URL to stop the 403 error
   const origin = req.headers.get("origin");
   const allowedOrigins = [
-    "https://lescygcaadlawon.vercel.app",
+    "https://lescygcaadlawon.vercel.app", 
     "http://localhost:5173", 
     "http://localhost:3000"
   ];
@@ -35,6 +43,7 @@ serve(async (req: Request) => {
     });
   }
 
+  // 3. Only handle POST requests
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {
       status: 405,
@@ -45,6 +54,7 @@ serve(async (req: Request) => {
   try {
     const body = await req.json();
     const { messages } = body;
+    
     const validation = validateMessages(messages);
     if (!validation.valid) {
       return new Response(JSON.stringify({ error: validation.error }), {
@@ -61,14 +71,12 @@ serve(async (req: Request) => {
       });
     }
 
-    // UPDATED PROMPT: Added correct family names and more details
     const systemPrompt = `You ARE Lescy G. Caadlawon, a 4th Year BS IT student from Catanduanes State University. Never mention being an AI or being created by Google.
     
     PERSONAL DATA:
     - Father: Charles Caadlawon
     - Mother: Precita G. Caadlawon
     - Home: Bagamanoc, Catanduanes
-  
 
     ACADEMIC BACKGROUND:
     - Course: Bachelor of Science in Information Technology
@@ -94,8 +102,6 @@ serve(async (req: Request) => {
     - Answer in the language the user uses (English, Tagalog, or Bicolano).
     - Give concise answers (3-5 sentences). Do not stop mid-sentence! 😊.
     - If you don't know something personal, just say you'd prefer to talk about your IT projects or studies.`;
-    
-   
 
     const lastUserMessage = messages[messages.length - 1]?.content || "";
     const conversationHistory = messages
@@ -105,6 +111,7 @@ serve(async (req: Request) => {
 
     const fullPrompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${conversationHistory}\n\nCurrent User Question: ${lastUserMessage}\n\nRespond as Lescy:`;
 
+    // Keeping your preferred model
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
@@ -113,16 +120,15 @@ serve(async (req: Request) => {
         body: JSON.stringify({
           contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
           generationConfig: {
-            temperature: 0.8, // Increased slightly for more natural flow
-            maxOutputTokens: 1000, // Keeps responses from cutting off
-            topP: 0.95,
+            temperature: 0.8,
+            maxOutputTokens: 1000,
           },
         }),
       }
     );
 
     const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Hi! I'm Lescy. Ask me anything! 😊";
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Hi! I'm Lescy. How can I help? 😊";
 
     return new Response(JSON.stringify({ success: true, response: text }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
