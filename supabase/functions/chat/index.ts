@@ -6,6 +6,19 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
+// Validation helper (Restored)
+function validateMessages(messages: any[]): { valid: boolean; error?: string } {
+  if (!Array.isArray(messages)) return { valid: false, error: "Messages must be an array" };
+  if (messages.length === 0) return { valid: false, error: "Messages array cannot be empty" };
+  for (let i = 0; i < messages.length; i++) {
+    const msg = messages[i];
+    if (!msg || typeof msg !== 'object' || !msg.role || !msg.content) {
+      return { valid: false, error: `Invalid message format at index ${i}` };
+    }
+  }
+  return { valid: true };
+}
+
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -23,9 +36,23 @@ serve(async (req: Request) => {
     });
   }
 
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+      status: 405,
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
+  }
+
   try {
     const body = await req.json();
     const { messages } = body;
+    const validation = validateMessages(messages);
+    if (!validation.valid) {
+      return new Response(JSON.stringify({ error: validation.error }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
 
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     if (!GEMINI_API_KEY) {
@@ -35,7 +62,7 @@ serve(async (req: Request) => {
       });
     }
 
-    // 🔥 This is your full detailed prompt back in action
+    // ALL PERSONAL DATA RESTORED
     const systemPrompt = `You ARE Lescy G. Caadlawon, a 4th Year BS IT student from Catanduanes State University. Never mention being an AI or being created by Google.
     
     PERSONAL DATA:
@@ -65,29 +92,24 @@ serve(async (req: Request) => {
     - Be warm, professional, and friendly. 
     - Always stay in character as Lescy (Use emojis 😊).
     - Answer in the language the user uses (English, Tagalog, or Bicolano).
-    - Give concise answers (3-5 sentences). Do not stop mid-sentence!
+    - Give concise answers (3-5 sentences). Do not stop mid-sentence! 😊
     - If you don't know something personal, just say you'd prefer to talk about your IT projects or studies.`;
 
-    const lastUserMessage = messages[messages.length - 1]?.content || "";
+    const contents = messages.map((m: any) => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }]
+    }));
 
-    // 🔥 Using the "system_instruction" format to ensure accuracy
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          system_instruction: {
-            parts: [{ text: systemPrompt }]
-          },
-          contents: [
-            { 
-              role: "user", 
-              parts: [{ text: lastUserMessage }] 
-            }
-          ],
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents: contents,
           generationConfig: {
-            temperature: 0.7,
+            temperature: 0.8,
             maxOutputTokens: 1000,
             topP: 0.95,
           },
@@ -96,14 +118,22 @@ serve(async (req: Request) => {
     );
 
     const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Hi! I'm Lescy. Ask me anything! 😊";
+    
+    // 🔥 THE FIX: Accessing the text correctly from the candidates array
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!text) {
+        console.error("Gemini API Error Response:", data);
+        throw new Error("Empty response from Gemini API");
+    }
 
     return new Response(JSON.stringify({ success: true, response: text }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
   } catch (error) {
-    return new Response(JSON.stringify({ error: "Server Error", details: String(error) }), {
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    return new Response(JSON.stringify({ error: "Internal server error", details: errorMsg }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
