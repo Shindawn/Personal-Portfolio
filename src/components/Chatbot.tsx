@@ -27,18 +27,15 @@ const Chatbot = () => {
 
   useEffect(() => {
     setMounted(true);
-    // Check for dark mode preference
     const isDarkMode = document.documentElement.classList.contains("dark");
     setIsDark(isDarkMode);
     
-    // Listen for theme changes
     const observer = new MutationObserver(() => {
       const isDarkMode = document.documentElement.classList.contains("dark");
       setIsDark(isDarkMode);
     });
     
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    
     return () => observer.disconnect();
   }, []);
 
@@ -46,7 +43,7 @@ const Chatbot = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, isOpen]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -62,15 +59,12 @@ const Chatbot = () => {
     setIsLoading(true);
 
     try {
-      // ✅ INTEGRATED: Call local Gemini service with API key from .env.local
       const text = await getChatResponse(userMessage.content);
-
       const assistantMessage: Message = {
         role: 'assistant',
         content: text,
         timestamp: Date.now()
       };
-
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error:', error);
@@ -115,125 +109,127 @@ const Chatbot = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-6 right-6 z-50"
+            // 🔥 RESPONSIVE WRAPPER: Full screen on mobile, floating on desktop
+            className="fixed inset-x-0 bottom-0 sm:inset-auto sm:bottom-6 sm:right-6 z-50 flex justify-end"
           >
-            <div className={`relative w-[350px] sm:w-[400px] h-[550px] rounded-2xl shadow-2xl flex flex-col ${
-              isDark ? 'bg-gray-900 border border-gray-700' : 'bg-white border border-gray-200'
+            <div className={`relative flex flex-col w-full sm:w-[400px] h-[85vh] sm:h-[600px] 
+              // UI Tweaks: No rounded corners at bottom on mobile to look integrated
+              rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden ${
+              isDark ? 'bg-gray-900 border-t sm:border border-gray-700' : 'bg-white border-t sm:border border-gray-200'
             }`}>
-              {/* Close Button */}
-              <button
-                onClick={() => setIsOpen(false)}
-                className={`absolute -top-3 -right-3 z-10 p-2 rounded-full transition-colors shadow-lg ${
-                  isDark ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-black text-white hover:bg-gray-800'
-                }`}
-              >
-                <X className="w-4 h-4" />
-              </button>
-
+              
               {/* Header */}
-              <div className={`bg-gradient-to-r text-white px-4 py-3 rounded-t-2xl ${
+              <div className={`flex-shrink-0 px-4 py-4 sm:py-3 flex items-center justify-between bg-gradient-to-r ${
                 isDark ? 'from-gray-800 to-gray-700' : 'from-black to-gray-800'
-              }`}>
+              } text-white`}>
                 <div className="flex items-center gap-3">
-                  <img 
-                    src={profileImage} 
-                    alt="Lescy" 
-                    className="w-10 h-10 rounded-full object-cover border-2 border-white/30"
-                  />
+                  <div className="relative">
+                    <img 
+                      src={profileImage} 
+                      alt="Lescy" 
+                      className="w-10 h-10 rounded-full object-cover border-2 border-white/20"
+                    />
+                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-gray-800 rounded-full"></span>
+                  </div>
                   <div>
-                    <h3 className="font-semibold">Lescy G. Caadlawon</h3>
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-green-400"></span>
-                      <p className="text-xs text-white/90">Online</p>
-                    </div>
+                    <h3 className="font-semibold text-sm sm:text-base">Lescy G. Caadlawon</h3>
+                    <p className="text-[10px] text-white/70 uppercase tracking-wider">Online</p>
                   </div>
                 </div>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
-              {/* Messages */}
-              <div ref={scrollRef} className={`flex-1 overflow-y-auto p-4 space-y-4 ${
-                isDark ? 'bg-gray-800' : 'bg-white'
-              }`}>
+              {/* Messages Area */}
+              <div 
+                ref={scrollRef} 
+                className={`flex-1 overflow-y-auto p-4 space-y-4 overscroll-contain scroll-smooth ${
+                  isDark ? 'bg-gray-900' : 'bg-gray-50'
+                }`}
+              >
                 {messages.map((message, index) => (
                   <div
                     key={index}
                     className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : ''}`}
                   >
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${message.role === 'user' ? 'bg-blue-600' : 'bg-gray-700'}`}>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${
+                      message.role === 'user' ? 'bg-blue-600' : 'bg-gray-700'
+                    }`}>
                       {message.role === 'user' ? (
                         <User className="w-4 h-4 text-white" />
                       ) : (
                         <img src={profileImage} alt="Lescy" className="w-full h-full object-cover" />
                       )}
                     </div>
-                    <div className={`flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'} max-w-[80%]`}>
-                      <div className={`rounded-lg px-3 py-2 ${
+                    <div className={`flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'} max-w-[85%]`}>
+                      <div className={`rounded-2xl px-4 py-2 text-sm ${
                         message.role === 'user'
-                          ? 'bg-blue-600 text-white'
-                          : isDark ? 'bg-gray-700 text-gray-100 border border-gray-600' : 'bg-gray-100 text-gray-900 border border-gray-300'
+                          ? 'bg-blue-600 text-white rounded-tr-none'
+                          : isDark 
+                            ? 'bg-gray-800 text-gray-100 border border-gray-700 rounded-tl-none' 
+                            : 'bg-white text-gray-900 border border-gray-200 shadow-sm rounded-tl-none'
                       }`}>
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                        <p className="leading-relaxed whitespace-pre-wrap">{message.content}</p>
                       </div>
-                      {mounted && (
-                        <span className={`text-xs mt-1 ${
-                          isDark ? 'text-gray-400' : 'text-gray-500'
-                        }`}>
-                          {new Date(message.timestamp).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </span>
-                      )}
+                      <span className="text-[10px] mt-1 opacity-50 px-1">
+                        {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
                     </div>
                   </div>
                 ))}
 
                 {isLoading && (
                   <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-700 overflow-hidden">
-                      <img src={profileImage} alt="Lescy" className="w-full h-full object-cover" />
+                    <div className="w-8 h-8 rounded-full bg-gray-700 overflow-hidden animate-pulse">
+                      <img src={profileImage} alt="Lescy" className="w-full h-full object-cover opacity-50" />
                     </div>
-                    <div className={`flex items-center gap-2 rounded-lg px-3 py-2 border ${
-                      isDark ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-gray-100 text-gray-600 border-gray-300'
+                    <div className={`flex items-center gap-2 rounded-2xl rounded-tl-none px-4 py-2 border ${
+                      isDark ? 'bg-gray-800 text-gray-400 border-gray-700' : 'bg-white text-gray-500 border-gray-200 shadow-sm'
                     }`}>
-                      <Loader2 className={`w-4 h-4 animate-spin ${isDark ? 'text-gray-400' : 'text-gray-700'}`} />
-                      <span className="text-sm">Lescy is typing...</span>
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span className="text-xs italic">Lescy is typing...</span>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Input */}
-              <div className={`border-t p-3 ${
-                isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'
+              {/* Input Area */}
+              <div className={`p-4 sm:p-3 border-t ${
+                isDark ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-100'
               }`}>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
                   <input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Ask Lescy anything..."
+                    placeholder="Message Lescy..."
                     disabled={isLoading}
-                    className={`flex-1 rounded-lg px-3 py-2 focus:outline-none text-sm border transition-colors ${
+                    className={`flex-1 rounded-xl px-4 py-3 sm:py-2 text-sm border focus:outline-none transition-all ${
                       isDark 
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-gray-500' 
-                        : 'bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-600 focus:border-black'
+                        ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-gray-500' 
+                        : 'bg-gray-100 border-transparent text-gray-900 placeholder-gray-500 focus:bg-white focus:border-gray-300'
                     }`}
                   />
                   <button
                     onClick={handleSend}
                     disabled={!input.trim() || isLoading}
-                    className={`rounded-lg px-4 transition-colors disabled:opacity-50 text-white ${
-                      isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-black hover:bg-gray-800'
+                    className={`p-3 sm:p-2 rounded-xl transition-all flex items-center justify-center disabled:opacity-30 ${
+                      isDark ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'
                     }`}
                   >
                     {isLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="w-5 h-5 animate-spin" />
                     ) : (
-                      <Send className="w-4 h-4" />
+                      <Send className="w-5 h-5" />
                     )}
                   </button>
                 </div>
+                {/* Mobile Spacing for Home Indicator */}
+                <div className="h-2 sm:hidden"></div>
               </div>
             </div>
           </motion.div>
