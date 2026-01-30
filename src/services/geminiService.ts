@@ -69,100 +69,11 @@ export const getChatResponse = async (userMessage: string): Promise<string> => {
       console.warn("Chat function responded with status", resp.status);
     }
   } catch (err) {
-    console.warn("Chat function call failed, falling back to client-side logic:", err);
+    console.warn("Chat function call failed:", err);
   }
 
-  // Fallback: use client-side Gemini if API key is available (not recommended for production)
-  if (!API_KEY || API_KEY.trim() === "") {
-    console.warn("⚠️ No API key configured. Using fallback Q&A.");
-    return getFallbackAnswer(userMessage);
-  }
-
-  const LESCY_CONTEXT = `You are Lescy G. Caadlawon, a BS Information Technology 4th Year Student from Catanduanes State University, located in Bagamanoc, Catanduanes, Philippines. Current GPA: 1.40.
-
-ABOUT ME:
-- 4th year BS Information Technology student
-- Passionate about web development and UI/UX design
-- From Bagamanoc, Catanduanes, Philippines
-- Studying at Catanduanes State University
-
-TECHNICAL SKILLS:
-- Frontend: React, TypeScript, Tailwind CSS, HTML, CSS, JavaScript
-- Backend: Node.js, Python, PHP, Laravel
-- Database: Firebase, MySQL
-- Design: UI/UX, Figma, Canva, Adobe Suite (Photoshop, Illustrator)
-- Tools: Git, GitHub
-
-KEY PROJECTS:
-1. Portfolio Website - Built with React, TypeScript, and Tailwind CSS
-2. Wedding RSVP System - Created with Framer and Google Scripts
-3. Community Portal - Full-stack app with React, Node.js, and Stripe integration
-4. Class Observation Form - Developed using Flask (Python)
-
-CURRENT STATUS:
-- Actively seeking internship/OJT opportunities
-- Open to web development and UI/UX design roles
-- Available for full-stack development positions
-
-CONTACT:
-- Email: caadlawony@gmail.com
-
-IMPORTANT INSTRUCTIONS:
-- Respond as Lescy in first person (use "I", "my", "me")
-- Be friendly, professional, and conversational
-- Keep answers concise but informative (2-4 sentences)
-- Answer in the same language as the user (English, Tagalog, Bicolano, etc.)
-- Always stay in character as Lescy`;
-
-  // Updated to gemini-2.5-flash (stable, current model - non-deprecated)
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
-
-  const requestBody = {
-    contents: [
-      {
-        parts: [
-          {
-            text: `${LESCY_CONTEXT}\n\nUser Question: ${userMessage}\n\nRespond as Lescy in a natural, conversational way:`,
-          },
-        ],
-      },
-    ],
-    generationConfig: {
-      temperature: 0.7,
-      maxOutputTokens: 1000,
-      topP: 0.95,
-      topK: 40,
-    },
-  };
-
-  try {
-    console.log("🚀 Calling Gemini API...");
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(requestBody),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.warn("⚠️ API failed:", response.status, errorData);
-      return getFallbackAnswer(userMessage);
-    }
-
-    const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (!text) {
-      console.warn("⚠️ No text in response, using fallback");
-      return getFallbackAnswer(userMessage);
-    }
-
-    console.log(`✅ Gemini API Success - Response length: ${text.length} characters`);
-    return text.trim();
-  } catch (error) {
-    console.error("❌ API Error:", error);
-    return getFallbackAnswer(userMessage);
-  }
+  // SECURITY: Do NOT call Gemini from the client. Use the server-side chat function instead.
+  // Fallback to local Q&A when the serverless function is unavailable.
+  console.warn("Chat function unavailable — using local fallback Q&A. Ensure GEMINI_API_KEY is configured on the server.");
+  return getFallbackAnswer(userMessage);
 };
