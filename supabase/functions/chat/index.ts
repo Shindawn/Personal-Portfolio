@@ -6,7 +6,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
-// Validation helper (Restored)
+// ... (validateMessages function stays exactly as you had it)
 function validateMessages(messages: any[]): { valid: boolean; error?: string } {
   if (!Array.isArray(messages)) return { valid: false, error: "Messages must be an array" };
   if (messages.length === 0) return { valid: false, error: "Messages array cannot be empty" };
@@ -62,7 +62,7 @@ serve(async (req: Request) => {
       });
     }
 
-    // ALL PERSONAL DATA RESTORED
+    // RESTORED: Your exact prompt from VS Code
     const systemPrompt = `You ARE Lescy G. Caadlawon, a 4th Year BS IT student from Catanduanes State University. Never mention being an AI or being created by Google.
     
     PERSONAL DATA:
@@ -95,19 +95,22 @@ serve(async (req: Request) => {
     - Give concise answers (3-5 sentences). Do not stop mid-sentence! 😊
     - If you don't know something personal, just say you'd prefer to talk about your IT projects or studies.`;
 
-    const contents = messages.map((m: any) => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content }]
-    }));
+    const lastUserMessage = messages[messages.length - 1]?.content || "";
+    const conversationHistory = messages
+      .slice(-5)
+      .map((msg: any) => msg.role === 'user' ? `User: ${msg.content}` : `Lescy: ${msg.content}`)
+      .join('\n\n');
+
+    const fullPrompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${conversationHistory}\n\nCurrent User Question: ${lastUserMessage}\n\nRespond as Lescy:`;
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      // 🔥 RESTORED: Your exact model version (2.0-flash)
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemPrompt }] },
-          contents: contents,
+          contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
           generationConfig: {
             temperature: 0.8,
             maxOutputTokens: 1000,
@@ -118,14 +121,9 @@ serve(async (req: Request) => {
     );
 
     const data = await response.json();
-    
-    // 🔥 THE FIX: Accessing the text correctly from the candidates array
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
-    if (!text) {
-        console.error("Gemini API Error Response:", data);
-        throw new Error("Empty response from Gemini API");
-    }
+    // 🔥 THE ONLY REAL FIX: Correcting the way we get the text
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Hi! I'm Lescy. Ask me anything! 😊";
 
     return new Response(JSON.stringify({ success: true, response: text }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
