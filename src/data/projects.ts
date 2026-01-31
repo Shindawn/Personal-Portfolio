@@ -27,7 +27,7 @@ export const projects = [
     description: "A centralized ecosystem designed to support local community engagement through five integrated management systems.",
     tech: ["Laravel"],
     link: "#",
-    github: "#",
+    github: "https://github.com/Shindawn/Community-Portal---Team-Development",
     category: "Full Stack",
   },
   {
