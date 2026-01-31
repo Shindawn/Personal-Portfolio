@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, X, Award } from "lucide-react";
+import { ArrowLeft, X, Award, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { certifications, Certificate } from "../data/certifications";
@@ -7,10 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Chatbot from "@/components/Chatbot";
+import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
+
+// Use the local worker file from public folder
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 const AllCertificationsPage = () => {
   const [filter, setFilter] = useState<"all" | "Cisco" | "DICT" | "DataCamp" | "CatSU" | "Google" | "other" | "HackerRank">("all");
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
+  const [numPages, setNumPages] = useState<number | null>(null);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pdfWidth, setPdfWidth] = useState<number | null>(null);
 
   const sortedCertifications = useMemo(() => {
     const filtered = certifications.filter((cert) => {
@@ -22,11 +31,33 @@ const AllCertificationsPage = () => {
 
   const openCertModal = (cert: Certificate) => {
     setSelectedCert(cert);
+    setPageNumber(1);
+    setNumPages(null);
   };
 
   const closeCertModal = () => {
     setSelectedCert(null);
+    setPageNumber(1);
+    setNumPages(null);
   };
+
+  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
+    setNumPages(numPages);
+  };
+
+  const goToNextPage = () => {
+    if (numPages && pageNumber < numPages) {
+      setPageNumber(pageNumber + 1);
+    }
+  };
+
+  const goToPrevPage = () => {
+    if (pageNumber > 1) {
+      setPageNumber(pageNumber - 1);
+    }
+  };
+
+  const isPDF = selectedCert?.imagePath.endsWith(".pdf");
 
   return (
     <motion.section
@@ -138,13 +169,80 @@ const AllCertificationsPage = () => {
         </div>
 
         <Dialog open={!!selectedCert} onOpenChange={closeCertModal}>
-          <DialogContent className="max-w-4xl p-0 overflow-hidden">
+          <DialogContent className="max-w-4xl p-0 overflow-hidden max-h-[90vh] flex flex-col">
             {selectedCert && (
-              <div className="relative">
-                {selectedCert.imagePath.endsWith(".pdf") ? (
-                  <iframe src={selectedCert.imagePath} className="w-full h-[80vh]" title={selectedCert.title} />
+              <div className="relative flex-1 overflow-auto">
+                {isPDF ? (
+                  <div className="flex flex-col h-full">
+                    <div className="flex-1 overflow-auto bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-4">
+                      <Document
+                        file={selectedCert.imagePath}
+                        onLoadSuccess={onDocumentLoadSuccess}
+                        loading={
+                          <div className="flex items-center justify-center p-8 text-muted-foreground">
+                            Loading certificate...
+                          </div>
+                        }
+                        error={
+                          <div className="flex items-center justify-center p-8 text-destructive">
+                            Error loading certificate. Please try again.
+                          </div>
+                        }
+                        options={{
+                          // Disable text selection and copying
+                          cMapUrl: 'https://unpkg.com/pdfjs-dist@3.11.174/cmaps/',
+                          cMapPacked: true,
+                        }}
+                      >
+                        <Page
+                          pageNumber={pageNumber}
+                          width={Math.min(window.innerWidth - 100, 800)}
+                          renderTextLayer={false}
+                          renderAnnotationLayer={false}
+                          className="shadow-lg"
+                        />
+                      </Document>
+                    </div>
+                    
+                    {/* PDF Navigation Controls */}
+                    {numPages && numPages > 1 && (
+                      <div className="bg-background border-t border-border p-4 flex items-center justify-between">
+                        <Button
+                          onClick={goToPrevPage}
+                          disabled={pageNumber <= 1}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                          <span className="hidden sm:inline ml-1">Previous</span>
+                        </Button>
+                        
+                        <div className="text-sm text-muted-foreground">
+                          Page {pageNumber} of {numPages}
+                        </div>
+                        
+                        <Button
+                          onClick={goToNextPage}
+                          disabled={pageNumber >= numPages}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <span className="hidden sm:inline mr-1">Next</span>
+                          <ChevronRight className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 ) : (
-                  <img src={selectedCert.imagePath} alt={selectedCert.title} className="w-full h-auto object-contain" />
+                  <div className="flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
+                    <img 
+                      src={selectedCert.imagePath} 
+                      alt={selectedCert.title} 
+                      className="w-full h-auto object-contain max-h-[80vh]"
+                      onContextMenu={(e) => e.preventDefault()} // Prevent right-click
+                      draggable={false} // Prevent dragging
+                    />
+                  </div>
                 )}
               </div>
             )}
