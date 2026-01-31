@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Mail, Download, FileText, X, Eye, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Mail, Download, FileText, X, Eye, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import profileImageLight from "@/assets/profile-light.jpg";
 import profileImageDark from "@/assets/profile-dark.jpg";
@@ -44,7 +44,6 @@ const Hero = () => {
 
   // PDF viewer state
   const [numPages, setNumPages] = useState<number | null>(null);
-  const [pageNumber, setPageNumber] = useState(1);
   const [pdfWidth, setPdfWidth] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState(false);
@@ -118,21 +117,8 @@ const Hero = () => {
     setIsLoading(false);
   };
 
-  const goToNextPage = () => {
-    if (numPages && pageNumber < numPages && !isLoading) {
-      setPageNumber((prev) => prev + 1);
-    }
-  };
-
-  const goToPrevPage = () => {
-    if (pageNumber > 1 && !isLoading) {
-      setPageNumber((prev) => prev - 1);
-    }
-  };
-
   const handleResumeOpen = () => {
     setIsResumeOpen(true);
-    setPageNumber(1);
     setNumPages(null);
     setIsLoading(true);
     setLoadError(false);
@@ -140,7 +126,6 @@ const Hero = () => {
 
   const handleResumeClose = () => {
     setIsResumeOpen(false);
-    setPageNumber(1);
     setNumPages(null);
     setIsLoading(false);
     setLoadError(false);
@@ -149,7 +134,6 @@ const Hero = () => {
   const handleResumeChange = (index: number) => {
     if (index === selectedResumeIndex) return;
     setSelectedResumeIndex(index);
-    setPageNumber(1);
     setNumPages(null);
     setIsLoading(true);
     setLoadError(false);
@@ -323,7 +307,7 @@ const Hero = () => {
           </motion.div>
         )}
 
-        {/* Resume Viewer Modal */}
+        {/* Resume Viewer Modal - Scrollable All Pages */}
         {isResumeOpen && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -344,7 +328,9 @@ const Hero = () => {
               <div className="bg-card border-b border-border p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="mb-2 sm:mb-0">
                   <h3 className="text-lg font-semibold">View Resume</h3>
-                  <p className="text-sm text-muted-foreground">Choose format to view or download</p>
+                  <p className="text-sm text-muted-foreground">
+                    {numPages ? `${numPages} page${numPages > 1 ? 's' : ''}` : 'Choose format to view or download'}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                   <div className="flex gap-2 overflow-x-auto max-w-[220px] sm:max-w-none">
@@ -352,8 +338,10 @@ const Hero = () => {
                       <button
                         key={opt.label}
                         onClick={() => handleResumeChange(idx)}
-                        className={`px-3 py-1 rounded-full text-sm border whitespace-nowrap ${
-                          selectedResumeIndex === idx ? "bg-foreground text-card" : "bg-transparent text-muted-foreground border-border"
+                        className={`px-3 py-1 rounded-full text-sm border whitespace-nowrap transition-colors ${
+                          selectedResumeIndex === idx 
+                            ? "bg-foreground text-card" 
+                            : "bg-transparent text-muted-foreground border-border hover:bg-muted"
                         }`}
                         aria-pressed={selectedResumeIndex === idx}
                       >
@@ -375,7 +363,7 @@ const Hero = () => {
                 </div>
               </div>
 
-              {/* PDF Viewer */}
+              {/* PDF Viewer - Scrollable All Pages */}
               <div className="flex-1 overflow-auto bg-gray-100 dark:bg-gray-900 flex flex-col items-center justify-start p-4 relative">
                 {isLoading && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm z-10">
@@ -417,59 +405,27 @@ const Hero = () => {
                     standardFontDataUrl: "https://unpkg.com/pdfjs-dist@3.11.174/standard_fonts/",
                   }}
                 >
-                  {!isLoading && !loadError && (
-                    <Page
-                      key={`page_${pageNumber}_${selectedResumeIndex}`}
-                      pageNumber={pageNumber}
-                      width={pdfWidth || undefined}
-                      renderTextLayer={true}
-                      renderAnnotationLayer={true}
-                      className="shadow-lg bg-white"
-                      loading={
-                        <div className="flex items-center justify-center p-8">
-                          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-                        </div>
-                      }
-                    />
+                  {!isLoading && !loadError && numPages && (
+                    <div className="flex flex-col gap-4">
+                      {Array.from(new Array(numPages), (el, index) => (
+                        <Page
+                          key={`page_${index + 1}`}
+                          pageNumber={index + 1}
+                          width={pdfWidth || undefined}
+                          renderTextLayer={true}
+                          renderAnnotationLayer={true}
+                          className="shadow-lg bg-white"
+                          loading={
+                            <div className="flex items-center justify-center p-8 bg-white" style={{ width: pdfWidth || 800, height: 1000 }}>
+                              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                            </div>
+                          }
+                        />
+                      ))}
+                    </div>
                   )}
                 </Document>
               </div>
-
-              {/* Navigation */}
-              {numPages && numPages > 1 && (
-                <div className="bg-card border-t border-border p-4 flex items-center justify-between">
-                  <Button
-                    onClick={goToPrevPage}
-                    disabled={pageNumber <= 1 || isLoading}
-                    variant="outline"
-                    size="sm"
-                  >
-                    <ChevronLeft className="w-4 h-4 mr-1" />
-                    Previous
-                  </Button>
-
-                  <div className="text-sm font-medium">
-                    {isLoading ? (
-                      <span className="flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Loading page...
-                      </span>
-                    ) : (
-                      `Page ${pageNumber} of ${numPages}`
-                    )}
-                  </div>
-
-                  <Button
-                    onClick={goToNextPage}
-                    disabled={pageNumber >= numPages || isLoading}
-                    variant="outline"
-                    size="sm"
-                  >
-                    Next
-                    <ChevronRight className="w-4 h-4 ml-1" />
-                  </Button>
-                </div>
-              )}
             </motion.div>
           </motion.div>
         )}
