@@ -38,7 +38,7 @@ export const certifications: Certificate[] = [
     category: 'Cisco',
     imagePath: '/certs/Cyber.pdf',
     description: 'Certificate of Course Completion',
-    year: 2025,
+    year: 2026,
   },
   {
     id: '5',
