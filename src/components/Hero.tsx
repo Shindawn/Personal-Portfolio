@@ -119,13 +119,13 @@ const Hero = () => {
   };
 
   const goToNextPage = () => {
-    if (numPages && pageNumber < numPages) {
+    if (numPages && pageNumber < numPages && !isLoading) {
       setPageNumber((prev) => prev + 1);
     }
   };
 
   const goToPrevPage = () => {
-    if (pageNumber > 1) {
+    if (pageNumber > 1 && !isLoading) {
       setPageNumber((prev) => prev - 1);
     }
   };
@@ -419,7 +419,7 @@ const Hero = () => {
                 >
                   {!isLoading && !loadError && (
                     <Page
-                      key={`page-${pageNumber}-${selectedResume.url}`}
+                      key={`page_${pageNumber}_${selectedResumeIndex}`}
                       pageNumber={pageNumber}
                       width={pdfWidth || undefined}
                       renderTextLayer={true}
