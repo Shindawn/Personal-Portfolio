@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, X, Award, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState, useMemo } from "react";
+import { ArrowLeft, X, Award, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { certifications, Certificate } from "../data/certifications";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,8 @@ const AllCertificationsPage = () => {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [pdfWidth, setPdfWidth] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   const sortedCertifications = useMemo(() => {
     const filtered = certifications.filter((cert) => {
@@ -29,20 +31,44 @@ const AllCertificationsPage = () => {
     return filtered.sort((a, b) => b.year - a.year);
   }, [filter]);
 
+  useEffect(() => {
+    // Calculate PDF width based on window size
+    const updateWidth = () => {
+      const width = Math.min(window.innerWidth - 100, 800);
+      setPdfWidth(width);
+    };
+    
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
+
   const openCertModal = (cert: Certificate) => {
     setSelectedCert(cert);
     setPageNumber(1);
     setNumPages(null);
+    setIsLoading(true);
+    setLoadError(false);
   };
 
   const closeCertModal = () => {
     setSelectedCert(null);
     setPageNumber(1);
     setNumPages(null);
+    setIsLoading(false);
+    setLoadError(false);
   };
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
+    setIsLoading(false);
+    setLoadError(false);
+  };
+
+  const onDocumentLoadError = (error: Error) => {
+    console.error('PDF load error:', error);
+    setLoadError(true);
+    setIsLoading(false);
   };
 
   const goToNextPage = () => {
@@ -175,37 +201,64 @@ const AllCertificationsPage = () => {
                 {isPDF ? (
                   <div className="flex flex-col h-full">
                     <div className="flex-1 overflow-auto bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-4">
-                      <Document
-                        file={selectedCert.imagePath}
-                        onLoadSuccess={onDocumentLoadSuccess}
-                        loading={
-                          <div className="flex items-center justify-center p-8 text-muted-foreground">
-                            Loading certificate...
-                          </div>
-                        }
-                        error={
-                          <div className="flex items-center justify-center p-8 text-destructive">
-                            Error loading certificate. Please try again.
-                          </div>
-                        }
-                        options={{
-                          // Disable text selection and copying
-                          cMapUrl: 'https://unpkg.com/pdfjs-dist@3.11.174/cmaps/',
-                          cMapPacked: true,
-                        }}
-                      >
-                        <Page
-                          pageNumber={pageNumber}
-                          width={Math.min(window.innerWidth - 100, 800)}
-                          renderTextLayer={false}
-                          renderAnnotationLayer={false}
-                          className="shadow-lg"
-                        />
-                      </Document>
+                      {selectedCert && (
+                        <Document
+                          file={selectedCert.imagePath}
+                          onLoadSuccess={onDocumentLoadSuccess}
+                          onLoadError={onDocumentLoadError}
+                          loading={
+                            <div className="flex flex-col items-center justify-center p-8 text-muted-foreground gap-3">
+                              <Loader2 className="w-8 h-8 animate-spin" />
+                              <p>Loading certificate...</p>
+                            </div>
+                          }
+                          error={
+                            <div className="flex flex-col items-center justify-center p-8 text-muted-foreground gap-3">
+                              <p className="text-center">
+                                {loadError ? 'Retrying...' : 'Unable to load PDF. Please try again.'}
+                              </p>
+                              <Button 
+                                onClick={() => {
+                                  setLoadError(false);
+                                  setIsLoading(true);
+                                  // Force re-render by setting null then back
+                                  const cert = selectedCert;
+                                  setSelectedCert(null);
+                                  setTimeout(() => setSelectedCert(cert), 100);
+                                }}
+                                variant="outline"
+                                size="sm"
+                              >
+                                Retry
+                              </Button>
+                            </div>
+                          }
+                          options={{
+                            cMapUrl: 'https://unpkg.com/pdfjs-dist@3.11.174/cmaps/',
+                            cMapPacked: true,
+                            standardFontDataUrl: 'https://unpkg.com/pdfjs-dist@3.11.174/standard_fonts/',
+                          }}
+                        >
+                          {!isLoading && !loadError && (
+                            <Page
+                              pageNumber={pageNumber}
+                              width={pdfWidth || undefined}
+                              renderTextLayer={false}
+                              renderAnnotationLayer={false}
+                              className="shadow-lg"
+                              loading={
+                                <div className="flex items-center justify-center p-8">
+                                  <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                                </div>
+                              }
+                            />
+                          )}
+                        </Document>
+                      )}
                     </div>
                     
                     {/* PDF Navigation Controls */}
-                    {numPages && numPages > 1 && (
+                    {numPages && numPages > 1 && !isLoading && !loadError && (
                       <div className="bg-background border-t border-border p-4 flex items-center justify-between">
                         <Button
                           onClick={goToPrevPage}
@@ -239,8 +292,9 @@ const AllCertificationsPage = () => {
                       src={selectedCert.imagePath} 
                       alt={selectedCert.title} 
                       className="w-full h-auto object-contain max-h-[80vh]"
-                      onContextMenu={(e) => e.preventDefault()} // Prevent right-click
-                      draggable={false} // Prevent dragging
+                      onContextMenu={(e) => e.preventDefault()}
+                      draggable={false}
+                      loading="lazy"
                     />
                   </div>
                 )}
