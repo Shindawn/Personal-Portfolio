@@ -140,7 +140,7 @@ export const certifications: Certificate[] = [
     id: '17',
     title: 'Microsoft Productivity Tools',
     category: 'DICT',
-    imagePath: '/certs/sql.pdf',
+    imagePath: '/certs/dict cert.pdf',
     description: 'Certificate of Completion',
     year: 2024,
   },
