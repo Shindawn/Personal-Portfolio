@@ -79,18 +79,20 @@ const AllProjectsPage = () => {
       transition={{ duration: 0.6 }}
       className="portfolio-card min-h-screen"
     >
-      <div className="container max-w-7xl mx-auto py-8">
+      <div className="container max-w-7xl mx-auto px-4 sm:px-0 py-6 sm:py-8">
+        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <Link to="/">
             <Button variant="outline" className="gap-2">
               <ArrowLeft className="w-4 h-4" />
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold font-display flex items-center gap-2">
-            <FolderOpen className="w-6 h-6" /> All Projects
+          <h1 className="text-xl sm:text-2xl font-bold font-display flex items-center gap-2">
+            <FolderOpen className="w-5 h-5 sm:w-6 sm:h-6" /> All Projects
           </h1>
         </div>
 
+        {/* Filter Buttons */}
         <div className="flex flex-wrap gap-2 mb-4">
           <Button
             variant={filter === "all" ? "default" : "outline"}
@@ -136,7 +138,8 @@ const AllProjectsPage = () => {
           </Button>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Projects Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {filteredProjects.map((project, index) => {
             const projKey = project.link || project.title;
             return (
@@ -148,7 +151,7 @@ const AllProjectsPage = () => {
                 transition={{ delay: index * 0.1 }}
               >
                 <Card className="h-full flex flex-col hover:shadow-lg transition-shadow duration-300">
-                  <CardHeader>
+                  <CardHeader className="pb-4">
                     <CardTitle className="flex items-center justify-between">
                       {project.title}
                       <div className="flex gap-2">
@@ -204,6 +207,7 @@ const AllProjectsPage = () => {
                       </div>
                     )}
 
+                    {/* Description with hover effect */}
                     <div className="group relative">
                       <CardDescription className="line-clamp-2 leading-snug">
                         {project.description}
@@ -213,6 +217,7 @@ const AllProjectsPage = () => {
                       </CardDescription>
                     </div>
                   </CardHeader>
+                  
                   <CardContent className="flex-1">
                     <div className="flex flex-wrap gap-1.5">
                       {project.tech.map((tech) => (
@@ -225,6 +230,7 @@ const AllProjectsPage = () => {
                       ))}
                     </div>
                   </CardContent>
+                  
                   <CardFooter className="flex gap-2">
                   </CardFooter>
                 </Card>
