@@ -122,17 +122,13 @@ const Hero = () => {
     setIsLoading(false);
   };
 
-  const goToNextPage = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const goToNextPage = () => {
     if (numPages && pageNumber < numPages) {
       setPageNumber(prev => prev + 1);
     }
   };
 
-  const goToPrevPage = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const goToPrevPage = () => {
     if (pageNumber > 1) {
       setPageNumber(prev => prev - 1);
     }
