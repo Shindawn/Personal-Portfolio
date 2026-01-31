@@ -79,28 +79,23 @@ const AllProjectsPage = () => {
       transition={{ duration: 0.6 }}
       className="portfolio-card min-h-screen"
     >
-      <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Header */}
-        <div className="flex items-center gap-3 sm:gap-4 mb-6">
+      <div className="container max-w-7xl mx-auto py-8">
+        <div className="flex items-center justify-between mb-6">
           <Link to="/">
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button variant="outline" className="gap-2">
               <ArrowLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Back</span>
             </Button>
           </Link>
-          <h1 className="text-xl sm:text-2xl font-bold font-display flex items-center gap-2">
-            <FolderOpen className="w-5 h-5 sm:w-6 sm:h-6" />
-            <span>All Projects</span>
+          <h1 className="text-2xl font-bold font-display flex items-center gap-2">
+            <FolderOpen className="w-6 h-6" /> All Projects
           </h1>
         </div>
 
-        {/* Filter Buttons */}
-        <div className="flex flex-wrap gap-2 mb-6">
+        <div className="flex flex-wrap gap-2 mb-4">
           <Button
             variant={filter === "all" ? "default" : "outline"}
             onClick={() => setFilter("all")}
             size="sm"
-            className="text-xs sm:text-sm"
           >
             All
           </Button>
@@ -108,15 +103,13 @@ const AllProjectsPage = () => {
             variant={filter === "Web Development" ? "default" : "outline"}
             onClick={() => setFilter("Web Development")}
             size="sm"
-            className="text-xs sm:text-sm"
           >
-            Web Dev
+            Web Development
           </Button>
           <Button
             variant={filter === "Full Stack" ? "default" : "outline"}
             onClick={() => setFilter("Full Stack")}
             size="sm"
-            className="text-xs sm:text-sm"
           >
             Full Stack
           </Button>
@@ -124,7 +117,6 @@ const AllProjectsPage = () => {
             variant={filter === "Backend" ? "default" : "outline"}
             onClick={() => setFilter("Backend")}
             size="sm"
-            className="text-xs sm:text-sm"
           >
             Backend
           </Button>
@@ -132,7 +124,6 @@ const AllProjectsPage = () => {
             variant={filter === "Mobile" ? "default" : "outline"}
             onClick={() => setFilter("Mobile")}
             size="sm"
-            className="text-xs sm:text-sm"
           >
             Mobile
           </Button>
@@ -140,14 +131,12 @@ const AllProjectsPage = () => {
             variant={filter === "Presentation" ? "default" : "outline"}
             onClick={() => setFilter("Presentation")}
             size="sm"
-            className="text-xs sm:text-sm"
           >
             Presentation
           </Button>
         </div>
 
-        {/* Projects Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 pb-4">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProjects.map((project, index) => {
             const projKey = project.link || project.title;
             return (
@@ -159,25 +148,20 @@ const AllProjectsPage = () => {
                 transition={{ delay: index * 0.1 }}
               >
                 <Card className="h-full flex flex-col hover:shadow-lg transition-shadow duration-300">
-                  <CardHeader className="space-y-2 p-4 sm:p-6">
-                    {/* Title and Action Buttons */}
-                    <div className="space-y-2">
-                      <CardTitle className="text-base sm:text-lg leading-tight">
-                        {project.title}
-                      </CardTitle>
-                      
-                      <div className="flex flex-wrap gap-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      {project.title}
+                      <div className="flex gap-2">
                         {project.link && project.link !== "#" && (
                           <>
                             {(project as any).type === "presentation" ? (
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="text-xs h-8"
                                 asChild
                               >
                                 <Link to={project.link}>
-                                  <Presentation className="w-3 h-3 sm:w-4 sm:h-4" />
+                                  <Presentation className="w-4 h-4" />
                                   <span className="ml-1">View</span>
                                 </Link>
                               </Button>
@@ -185,13 +169,11 @@ const AllProjectsPage = () => {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="text-xs h-8"
                                 asChild
                               >
                                 <a href={project.link} target="_blank" rel="noopener noreferrer">
                                   {getLivedemolLogo(project)}
-                                  <span className="ml-1 hidden xs:inline">Live Demo</span>
-                                  <span className="ml-1 xs:hidden">Demo</span>
+                                  <span className="ml-1">Live Demo</span>
                                 </a>
                               </Button>
                             )}
@@ -201,21 +183,19 @@ const AllProjectsPage = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="text-xs h-8"
                             asChild
                           >
                             <a href={project.github} target="_blank" rel="noopener noreferrer">
-                              <Github className="w-3 h-3 sm:w-4 sm:h-4" />
-                              <span className="ml-1 sm:hidden">Code</span>
+                              <Github className="w-4 h-4" />
                             </a>
                           </Button>
                         )}
                       </div>
-                    </div>
+                    </CardTitle>
 
                     {/* Slide count for presentation projects */}
                     {project.type === 'presentation' && (
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-muted-foreground mt-1">
                         {loadingCounts[projKey]
                           ? 'Slides: ...'
                           : slideCounts[projKey] || slideCounts[projKey] === 0
@@ -224,18 +204,16 @@ const AllProjectsPage = () => {
                       </div>
                     )}
 
-                    {/* Description with hover effect */}
                     <div className="group relative">
-                      <CardDescription className="line-clamp-2 leading-snug text-xs sm:text-sm">
+                      <CardDescription className="line-clamp-2 leading-snug">
                         {project.description}
                       </CardDescription>
-                      <CardDescription className="opacity-0 group-hover:opacity-100 absolute top-0 left-0 right-0 bg-card z-10 p-2 rounded shadow-lg border transition-opacity max-h-32 overflow-y-auto text-xs sm:text-sm">
+                      <CardDescription className="opacity-0 group-hover:opacity-100 absolute top-0 left-0 right-0 bg-card z-10 p-2 rounded shadow-lg border transition-opacity max-h-32 overflow-y-auto">
                         {project.description}
                       </CardDescription>
                     </div>
                   </CardHeader>
-                  
-                  <CardContent className="flex-1 p-4 sm:p-6 pt-0">
+                  <CardContent className="flex-1">
                     <div className="flex flex-wrap gap-1.5">
                       {project.tech.map((tech) => (
                         <span
@@ -247,8 +225,7 @@ const AllProjectsPage = () => {
                       ))}
                     </div>
                   </CardContent>
-                  
-                  <CardFooter className="flex gap-2 p-4 sm:p-6 pt-0">
+                  <CardFooter className="flex gap-2">
                   </CardFooter>
                 </Card>
               </motion.div>
