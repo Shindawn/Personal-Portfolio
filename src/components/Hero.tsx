@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Mail, Download, FileText, X, Eye, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import profileImageLight from "@/assets/profile-light.jpg";
 import profileImageDark from "@/assets/profile-dark.jpg";
 import { Button } from "@/components/ui/button";
@@ -40,13 +40,13 @@ const Hero = () => {
     { label: "Standard Format", url: "/resumes/resume-standard.pdf" },
   ];
   const [selectedResumeIndex, setSelectedResumeIndex] = useState(0);
-  const selectedResume = resumeOptions[selectedResumeIndex];
 
   // PDF viewer state
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pdfWidth, setPdfWidth] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState(false);
+  const [pdfKey, setPdfKey] = useState(0); // Force remount on errors
 
   useEffect(() => {
     const checkTheme = () => {
@@ -104,40 +104,47 @@ const Hero = () => {
     };
   }, [phase, charIndex, variantIndex]);
 
-  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
-    console.log("PDF loaded — total pages:", numPages);
+  const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
+    console.log("✅ PDF loaded successfully — total pages:", numPages);
     setNumPages(numPages);
     setIsLoading(false);
     setLoadError(false);
-  };
+  }, []);
 
-  const onDocumentLoadError = (error: Error) => {
-    console.error("PDF load error:", error);
+  const onDocumentLoadError = useCallback((error: Error) => {
+    console.error("❌ PDF load error:", error);
     setLoadError(true);
     setIsLoading(false);
-  };
+    // Don't throw or reload - just show error state
+  }, []);
 
-  const handleResumeOpen = () => {
+  const handleResumeOpen = useCallback(() => {
+    console.log("📂 Opening resume viewer");
     setIsResumeOpen(true);
     setNumPages(null);
     setIsLoading(true);
     setLoadError(false);
-  };
+  }, []);
 
-  const handleResumeClose = () => {
+  const handleResumeClose = useCallback(() => {
+    console.log("❌ Closing resume viewer");
     setIsResumeOpen(false);
     setNumPages(null);
     setIsLoading(false);
     setLoadError(false);
-  };
+  }, []);
 
-  const handleResumeChange = (index: number) => {
+  const handleResumeChange = useCallback((index: number) => {
     if (index === selectedResumeIndex) return;
+    console.log("🔄 Changing resume to:", resumeOptions[index].label);
     setSelectedResumeIndex(index);
     setNumPages(null);
     setIsLoading(true);
     setLoadError(false);
-  };
+    setPdfKey(prev => prev + 1); // Force Document remount
+  }, [selectedResumeIndex, resumeOptions]);
+
+  const selectedResume = resumeOptions[selectedResumeIndex];
 
   return (
     <>
@@ -338,7 +345,8 @@ const Hero = () => {
                       <button
                         key={opt.label}
                         onClick={() => handleResumeChange(idx)}
-                        className={`px-3 py-1 rounded-full text-sm border whitespace-nowrap transition-colors ${
+                        disabled={isLoading}
+                        className={`px-3 py-1 rounded-full text-sm border whitespace-nowrap transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                           selectedResumeIndex === idx 
                             ? "bg-foreground text-card" 
                             : "bg-transparent text-muted-foreground border-border hover:bg-muted"
@@ -350,7 +358,12 @@ const Hero = () => {
                     ))}
                   </div>
 
-                  <a href={selectedResume.url} download={`${selectedResume.label.replace(/\s+/g, "-")}.pdf`} className="ml-2 block">
+                  <a 
+                    href={selectedResume.url} 
+                    download={`${selectedResume.label.replace(/\s+/g, "-")}.pdf`} 
+                    className="ml-2 block"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <Button className="gap-2 px-3 py-1 text-sm">
                       <Download className="w-4 h-4" />
                       <span className="hidden sm:inline">Download</span>
@@ -365,66 +378,81 @@ const Hero = () => {
 
               {/* PDF Viewer - Scrollable All Pages */}
               <div className="flex-1 overflow-auto bg-gray-100 dark:bg-gray-900 flex flex-col items-center justify-start p-4 relative">
-                {isLoading && (
+                {isLoading && !loadError && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm z-10">
                     <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
                     <p className="text-white font-medium">Loading resume...</p>
                   </div>
                 )}
 
-                <Document
-                  key={selectedResume.url}
-                  file={selectedResume.url}
-                  onLoadSuccess={onDocumentLoadSuccess}
-                  onLoadError={onDocumentLoadError}
-                  loading={
-                    <div className="flex flex-col items-center justify-center p-8 text-muted-foreground gap-3">
-                      <Loader2 className="w-8 h-8 animate-spin" />
-                      <p>Loading resume...</p>
-                    </div>
-                  }
-                  error={
-                    <div className="flex flex-col items-center justify-center p-8 text-muted-foreground gap-3 text-center">
-                      <p>Unable to load resume. Please try again.</p>
+                {loadError ? (
+                  <div className="flex flex-col items-center justify-center p-8 text-center gap-4">
+                    <div className="text-destructive text-lg font-semibold">⚠️ Unable to Load PDF</div>
+                    <p className="text-sm text-muted-foreground">
+                      The PDF file could not be loaded. Please try again or download it directly.
+                    </p>
+                    <div className="flex gap-2">
                       <Button
                         onClick={() => {
                           setLoadError(false);
                           setIsLoading(true);
-                          handleResumeChange(selectedResumeIndex);
+                          setPdfKey(prev => prev + 1);
                         }}
                         variant="outline"
                         size="sm"
                       >
                         Retry
                       </Button>
+                      <a href={selectedResume.url} download>
+                        <Button variant="default" size="sm" className="gap-2">
+                          <Download className="w-4 h-4" />
+                          Download Instead
+                        </Button>
+                      </a>
                     </div>
-                  }
-                  options={{
-                    cMapUrl: "https://unpkg.com/pdfjs-dist@3.11.174/cmaps/",
-                    cMapPacked: true,
-                    standardFontDataUrl: "https://unpkg.com/pdfjs-dist@3.11.174/standard_fonts/",
-                  }}
-                >
-                  {!isLoading && !loadError && numPages && (
-                    <div className="flex flex-col gap-4">
-                      {Array.from(new Array(numPages), (el, index) => (
-                        <Page
-                          key={`page_${index + 1}`}
-                          pageNumber={index + 1}
-                          width={pdfWidth || undefined}
-                          renderTextLayer={true}
-                          renderAnnotationLayer={true}
-                          className="shadow-lg bg-white"
-                          loading={
-                            <div className="flex items-center justify-center p-8 bg-white" style={{ width: pdfWidth || 800, height: 1000 }}>
-                              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-                            </div>
-                          }
-                        />
-                      ))}
-                    </div>
-                  )}
-                </Document>
+                  </div>
+                ) : (
+                  <Document
+                    key={`${selectedResume.url}-${pdfKey}`}
+                    file={selectedResume.url}
+                    onLoadSuccess={onDocumentLoadSuccess}
+                    onLoadError={onDocumentLoadError}
+                    loading={
+                      <div className="flex flex-col items-center justify-center p-8 text-muted-foreground gap-3">
+                        <Loader2 className="w-8 h-8 animate-spin" />
+                        <p>Loading resume...</p>
+                      </div>
+                    }
+                    options={{
+                      cMapUrl: "https://unpkg.com/pdfjs-dist@3.11.174/cmaps/",
+                      cMapPacked: true,
+                      standardFontDataUrl: "https://unpkg.com/pdfjs-dist@3.11.174/standard_fonts/",
+                    }}
+                  >
+                    {!isLoading && numPages && (
+                      <div className="flex flex-col gap-4">
+                        {Array.from(new Array(numPages), (el, index) => (
+                          <Page
+                            key={`page_${index + 1}`}
+                            pageNumber={index + 1}
+                            width={pdfWidth || undefined}
+                            renderTextLayer={true}
+                            renderAnnotationLayer={true}
+                            className="shadow-lg bg-white"
+                            loading={
+                              <div 
+                                className="flex items-center justify-center p-8 bg-white shadow-lg" 
+                                style={{ width: pdfWidth || 800, height: 1000 }}
+                              >
+                                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                              </div>
+                            }
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </Document>
+                )}
               </div>
             </motion.div>
           </motion.div>
