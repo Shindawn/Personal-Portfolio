@@ -36,7 +36,7 @@ export const certifications: Certificate[] = [
     id: '4',
     title: 'Cyber Threat Management',
     category: 'Cisco',
-    imagePath: '/certs/CyberThreatManagement.pdf',
+    imagePath: '/certs/Cyber.pdf',
     description: 'Certificate of Course Completion',
     year: 2025,
   },
