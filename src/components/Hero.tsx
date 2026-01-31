@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Mail, Download, FileText, X, Eye, Loader2 } from "lucide-react";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import profileImageLight from "@/assets/profile-light.jpg";
 import profileImageDark from "@/assets/profile-dark.jpg";
 import { Button } from "@/components/ui/button";
@@ -40,13 +40,11 @@ const Hero = () => {
     { label: "Standard Format", url: "/resumes/resume-standard.pdf" },
   ];
   const [selectedResumeIndex, setSelectedResumeIndex] = useState(0);
+  const selectedResume = resumeOptions[selectedResumeIndex];
 
   // PDF viewer state
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pdfWidth, setPdfWidth] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadError, setLoadError] = useState(false);
-  const [pdfKey, setPdfKey] = useState(0); // Force remount on errors
 
   useEffect(() => {
     const checkTheme = () => {
@@ -104,47 +102,15 @@ const Hero = () => {
     };
   }, [phase, charIndex, variantIndex]);
 
-  const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
-    console.log("✅ PDF loaded successfully — total pages:", numPages);
+  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
-    setIsLoading(false);
-    setLoadError(false);
-  }, []);
+  };
 
-  const onDocumentLoadError = useCallback((error: Error) => {
-    console.error("❌ PDF load error:", error);
-    setLoadError(true);
-    setIsLoading(false);
-    // Don't throw or reload - just show error state
-  }, []);
-
-  const handleResumeOpen = useCallback(() => {
-    console.log("📂 Opening resume viewer");
-    setIsResumeOpen(true);
-    setNumPages(null);
-    setIsLoading(true);
-    setLoadError(false);
-  }, []);
-
-  const handleResumeClose = useCallback(() => {
-    console.log("❌ Closing resume viewer");
-    setIsResumeOpen(false);
-    setNumPages(null);
-    setIsLoading(false);
-    setLoadError(false);
-  }, []);
-
-  const handleResumeChange = useCallback((index: number) => {
+  const handleResumeChange = (index: number) => {
     if (index === selectedResumeIndex) return;
-    console.log("🔄 Changing resume to:", resumeOptions[index].label);
     setSelectedResumeIndex(index);
     setNumPages(null);
-    setIsLoading(true);
-    setLoadError(false);
-    setPdfKey(prev => prev + 1); // Force Document remount
-  }, [selectedResumeIndex, resumeOptions]);
-
-  const selectedResume = resumeOptions[selectedResumeIndex];
+  };
 
   return (
     <>
@@ -219,7 +185,7 @@ const Hero = () => {
               transition={{ delay: 0.6 }}
               className="flex flex-wrap gap-3 justify-center md:justify-start"
             >
-              <Button className="gap-2 w-full sm:w-auto" onClick={handleResumeOpen}>
+              <Button className="gap-2 w-full sm:w-auto" onClick={() => setIsResumeOpen(true)}>
                 <Eye className="w-4 h-4" />
                 View Resume
               </Button>
@@ -314,14 +280,14 @@ const Hero = () => {
           </motion.div>
         )}
 
-        {/* Resume Viewer Modal - Scrollable All Pages */}
+        {/* Resume Viewer Modal */}
         {isResumeOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={handleResumeClose}
+            onClick={() => setIsResumeOpen(false)}
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
@@ -336,123 +302,65 @@ const Hero = () => {
                 <div className="mb-2 sm:mb-0">
                   <h3 className="text-lg font-semibold">View Resume</h3>
                   <p className="text-sm text-muted-foreground">
-                    {numPages ? `${numPages} page${numPages > 1 ? 's' : ''}` : 'Choose format to view or download'}
+                    {numPages ? `${numPages} page${numPages > 1 ? 's' : ''}` : 'Loading...'}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                  <div className="flex gap-2 overflow-x-auto max-w-[220px] sm:max-w-none">
+                  <div className="flex gap-2">
                     {resumeOptions.map((opt, idx) => (
                       <button
                         key={opt.label}
                         onClick={() => handleResumeChange(idx)}
-                        disabled={isLoading}
-                        className={`px-3 py-1 rounded-full text-sm border whitespace-nowrap transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                        className={`px-3 py-1 rounded-full text-sm border whitespace-nowrap transition-colors ${
                           selectedResumeIndex === idx 
                             ? "bg-foreground text-card" 
                             : "bg-transparent text-muted-foreground border-border hover:bg-muted"
                         }`}
-                        aria-pressed={selectedResumeIndex === idx}
                       >
                         {opt.label}
                       </button>
                     ))}
                   </div>
 
-                  <a 
-                    href={selectedResume.url} 
-                    download={`${selectedResume.label.replace(/\s+/g, "-")}.pdf`} 
-                    className="ml-2 block"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  <a href={selectedResume.url} download className="ml-2">
                     <Button className="gap-2 px-3 py-1 text-sm">
                       <Download className="w-4 h-4" />
                       <span className="hidden sm:inline">Download</span>
                     </Button>
                   </a>
 
-                  <button onClick={handleResumeClose} className="p-2 ml-2 hover:bg-muted rounded-lg transition-colors">
+                  <button onClick={() => setIsResumeOpen(false)} className="p-2 ml-2 hover:bg-muted rounded-lg transition-colors">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
               </div>
 
-              {/* PDF Viewer - Scrollable All Pages */}
-              <div className="flex-1 overflow-auto bg-gray-100 dark:bg-gray-900 flex flex-col items-center justify-start p-4 relative">
-                {isLoading && !loadError && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm z-10">
-                    <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-                    <p className="text-white font-medium">Loading resume...</p>
-                  </div>
-                )}
-
-                {loadError ? (
-                  <div className="flex flex-col items-center justify-center p-8 text-center gap-4">
-                    <div className="text-destructive text-lg font-semibold">⚠️ Unable to Load PDF</div>
-                    <p className="text-sm text-muted-foreground">
-                      The PDF file could not be loaded. Please try again or download it directly.
-                    </p>
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => {
-                          setLoadError(false);
-                          setIsLoading(true);
-                          setPdfKey(prev => prev + 1);
-                        }}
-                        variant="outline"
-                        size="sm"
-                      >
-                        Retry
-                      </Button>
-                      <a href={selectedResume.url} download>
-                        <Button variant="default" size="sm" className="gap-2">
-                          <Download className="w-4 h-4" />
-                          Download Instead
-                        </Button>
-                      </a>
+              {/* PDF Viewer */}
+              <div className="flex-1 overflow-auto bg-gray-100 dark:bg-gray-900 p-4">
+                <Document
+                  file={selectedResume.url}
+                  onLoadSuccess={onDocumentLoadSuccess}
+                  loading={
+                    <div className="flex items-center justify-center p-8">
+                      <Loader2 className="w-8 h-8 animate-spin" />
                     </div>
-                  </div>
-                ) : (
-                  <Document
-                    key={`${selectedResume.url}-${pdfKey}`}
-                    file={selectedResume.url}
-                    onLoadSuccess={onDocumentLoadSuccess}
-                    onLoadError={onDocumentLoadError}
-                    loading={
-                      <div className="flex flex-col items-center justify-center p-8 text-muted-foreground gap-3">
-                        <Loader2 className="w-8 h-8 animate-spin" />
-                        <p>Loading resume...</p>
-                      </div>
-                    }
-                    options={{
-                      cMapUrl: "https://unpkg.com/pdfjs-dist@3.11.174/cmaps/",
-                      cMapPacked: true,
-                      standardFontDataUrl: "https://unpkg.com/pdfjs-dist@3.11.174/standard_fonts/",
-                    }}
-                  >
-                    {!isLoading && numPages && (
-                      <div className="flex flex-col gap-4">
-                        {Array.from(new Array(numPages), (el, index) => (
-                          <Page
-                            key={`page_${index + 1}`}
-                            pageNumber={index + 1}
-                            width={pdfWidth || undefined}
-                            renderTextLayer={true}
-                            renderAnnotationLayer={true}
-                            className="shadow-lg bg-white"
-                            loading={
-                              <div 
-                                className="flex items-center justify-center p-8 bg-white shadow-lg" 
-                                style={{ width: pdfWidth || 800, height: 1000 }}
-                              >
-                                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-                              </div>
-                            }
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </Document>
-                )}
+                  }
+                >
+                  {numPages && (
+                    <div className="flex flex-col gap-4 items-center">
+                      {Array.from(new Array(numPages), (el, index) => (
+                        <Page
+                          key={`page_${index + 1}`}
+                          pageNumber={index + 1}
+                          width={pdfWidth || undefined}
+                          renderTextLayer={false}
+                          renderAnnotationLayer={false}
+                          className="shadow-lg"
+                        />
+                      ))}
+                    </div>
+                  )}
+                </Document>
               </div>
             </motion.div>
           </motion.div>
