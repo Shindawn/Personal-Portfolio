@@ -37,7 +37,7 @@ const Hero = () => {
   const [isResumeOpen, setIsResumeOpen] = useState(false);
   const resumeOptions = [
     { label: "CICT Format", url: "/resumes/resume-cict.pdf" },
-    { label: "Standard Format", url: "/resumes/LescyGCaadlawon-Resume.pdf" },
+    { label: "Standard Format", url: "/resumes/resume-standard.pdf" },
   ];
   const [selectedResumeIndex, setSelectedResumeIndex] = useState(0);
   const selectedResume = resumeOptions[selectedResumeIndex];
@@ -122,15 +122,19 @@ const Hero = () => {
     setIsLoading(false);
   };
 
-  const goToNextPage = () => {
+  const goToNextPage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (numPages && pageNumber < numPages) {
-      setPageNumber(pageNumber + 1);
+      setPageNumber(prev => prev + 1);
     }
   };
 
-  const goToPrevPage = () => {
+  const goToPrevPage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (pageNumber > 1) {
-      setPageNumber(pageNumber - 1);
+      setPageNumber(prev => prev - 1);
     }
   };
 
@@ -151,6 +155,7 @@ const Hero = () => {
   };
 
   const handleResumeChange = (index: number) => {
+    if (index === selectedResumeIndex) return;
     setSelectedResumeIndex(index);
     setPageNumber(1);
     setNumPages(null);
@@ -380,6 +385,7 @@ const Hero = () => {
               {/* PDF Viewer */}
               <div className="flex-1 overflow-auto bg-gray-100 dark:bg-gray-900 flex flex-col items-center justify-start p-4">
                 <Document
+                  key={selectedResume.url}
                   file={selectedResume.url}
                   onLoadSuccess={onDocumentLoadSuccess}
                   onLoadError={onDocumentLoadError}
@@ -393,15 +399,14 @@ const Hero = () => {
                     <div className="flex flex-col items-center justify-center p-8 text-muted-foreground gap-3">
                       <p className="text-center">Unable to load resume. Please try again.</p>
                       <Button 
-                        onClick={() => {
-                          setLoadError(false);
-                          setIsLoading(true);
-                          const idx = selectedResumeIndex;
-                          setSelectedResumeIndex(-1);
-                          setTimeout(() => setSelectedResumeIndex(idx), 100);
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleResumeChange(selectedResumeIndex);
                         }}
                         variant="outline"
                         size="sm"
+                        type="button"
                       >
                         Retry
                       </Button>
@@ -415,6 +420,7 @@ const Hero = () => {
                 >
                   {!isLoading && !loadError && (
                     <Page
+                      key={`page-${pageNumber}`}
                       pageNumber={pageNumber}
                       width={pdfWidth || undefined}
                       renderTextLayer={true}
@@ -438,6 +444,7 @@ const Hero = () => {
                     disabled={pageNumber <= 1}
                     variant="outline"
                     size="sm"
+                    type="button"
                   >
                     <ChevronLeft className="w-4 h-4" />
                     <span className="hidden sm:inline ml-1">Previous</span>
@@ -452,6 +459,7 @@ const Hero = () => {
                     disabled={pageNumber >= numPages}
                     variant="outline"
                     size="sm"
+                    type="button"
                   >
                     <span className="hidden sm:inline mr-1">Next</span>
                     <ChevronRight className="w-4 h-4" />
