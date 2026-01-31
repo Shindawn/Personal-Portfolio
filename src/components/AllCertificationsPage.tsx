@@ -32,7 +32,6 @@ const AllCertificationsPage = () => {
   }, [filter]);
 
   useEffect(() => {
-    // Calculate PDF width based on window size
     const updateWidth = () => {
       const width = Math.min(window.innerWidth - 100, 800);
       setPdfWidth(width);
@@ -92,78 +91,36 @@ const AllCertificationsPage = () => {
       transition={{ duration: 0.6 }}
       className="portfolio-card min-h-screen"
     >
-      <div className="container max-w-7xl mx-auto py-8">
-        <div className="flex items-center justify-between mb-6">
-          <Link to="/">
-            <Button variant="outline" className="gap-2">
+      <div className="container max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        {/* Header */}
+        <div className="flex items-center justify-center relative mb-6 sm:mb-8">
+          <Link to="/" className="absolute left-0">
+            <Button variant="outline" className="gap-2 h-9 w-9 p-0 flex items-center justify-center">
               <ArrowLeft className="w-4 h-4" />
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold font-display flex items-center gap-2">
-            <Award className="w-6 h-6" /> Seminars/Trainings
+          <h1 className="text-xl sm:text-2xl font-bold font-display flex items-center gap-2">
+            <Award className="w-5 h-5 sm:w-6 sm:h-6" /> Seminars/Trainings
           </h1>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-4">
-          <Button
-            variant={filter === "all" ? "default" : "outline"}
-            onClick={() => setFilter("all")}
-            size="sm"
-          >
-            All
-          </Button>
-          <Button
-            variant={filter === "Cisco" ? "default" : "outline"}
-            onClick={() => setFilter("Cisco")}
-            size="sm"
-          >
-            Cisco
-          </Button>
-          <Button
-            variant={filter === "DICT" ? "default" : "outline"}
-            onClick={() => setFilter("DICT")}
-            size="sm"
-          >
-            DICT
-          </Button>
-          <Button
-            variant={filter === "DataCamp" ? "default" : "outline"}
-            onClick={() => setFilter("DataCamp")}
-            size="sm"
-          >
-            DataCamp
-          </Button>
-          <Button
-            variant={filter === "CatSU" ? "default" : "outline"}
-            onClick={() => setFilter("CatSU")}
-            size="sm"
-          >
-            CatSU
-          </Button>
-          <Button
-            variant={filter === "Google" ? "default" : "outline"}
-            onClick={() => setFilter("Google")}
-            size="sm"
-          >
-            Google
-          </Button>
-          <Button
-            variant={filter === "HackerRank" ? "default" : "outline"}
-            onClick={() => setFilter("HackerRank")}
-            size="sm"
-          >
-            HackerRank
-          </Button>
-          <Button
-            variant={filter === "other" ? "default" : "outline"}
-            onClick={() => setFilter("other")}
-            size="sm"
-          >
-            Other
-          </Button>
+        {/* Filter Buttons */}
+        <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-5 sm:mb-6">
+          {(["all", "Cisco", "DICT", "DataCamp", "CatSU", "Google", "HackerRank", "other"] as const).map((cat) => (
+            <Button
+              key={cat}
+              variant={filter === cat ? "default" : "outline"}
+              onClick={() => setFilter(cat)}
+              size="sm"
+              className="h-8 px-3 text-xs sm:h-9 sm:px-4 sm:text-sm capitalize"
+            >
+              {cat === "all" ? "All" : cat}
+            </Button>
+          ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
+        {/* Certification Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3">
           {sortedCertifications.length > 0 ? (
             sortedCertifications.map((cert) => (
               <motion.div
@@ -177,11 +134,15 @@ const AllCertificationsPage = () => {
                 className="cursor-pointer"
               >
                 <Card className="h-full">
-                  <CardHeader className="py-1.5 px-2">
-                    <CardTitle className="text-sm text-foreground line-clamp-2 leading-tight">{cert.title}</CardTitle>
-                    <CardDescription className="text-xs capitalize mt-0.5">{cert.year} • {cert.category}</CardDescription>
+                  <CardHeader className="py-2.5 px-3 sm:py-2 sm:px-3">
+                    <CardTitle className="text-xs sm:text-sm text-foreground line-clamp-2 leading-snug">
+                      {cert.title}
+                    </CardTitle>
+                    <CardDescription className="text-xs capitalize mt-1">
+                      {cert.year} • {cert.category}
+                    </CardDescription>
                   </CardHeader>
-                  <CardFooter className="pt-0 pb-1 px-2">
+                  <CardFooter className="pt-0 pb-2.5 px-3 sm:pb-2">
                     {cert.description && (
                       <p className="text-xs text-muted-foreground line-clamp-1">{cert.description}</p>
                     )}
@@ -190,17 +151,20 @@ const AllCertificationsPage = () => {
               </motion.div>
             ))
           ) : (
-            <p className="text-muted-foreground text-center col-span-full">No certifications found for this category.</p>
+            <p className="text-muted-foreground text-center col-span-full py-8 text-sm">
+              No certifications found for this category.
+            </p>
           )}
         </div>
 
+        {/* Modal */}
         <Dialog open={!!selectedCert} onOpenChange={closeCertModal}>
-          <DialogContent className="max-w-4xl p-0 overflow-hidden max-h-[90vh] flex flex-col">
+          <DialogContent className="max-w-4xl p-0 overflow-hidden max-h-[90vh] flex flex-col w-[calc(100vw-24px)] sm:w-auto mx-3 sm:mx-auto">
             {selectedCert && (
               <div className="relative flex-1 overflow-auto">
                 {isPDF ? (
                   <div className="flex flex-col h-full">
-                    <div className="flex-1 overflow-auto bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-4">
+                    <div className="flex-1 overflow-auto bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-2 sm:p-4">
                       {selectedCert && (
                         <Document
                           file={selectedCert.imagePath}
@@ -209,19 +173,18 @@ const AllCertificationsPage = () => {
                           loading={
                             <div className="flex flex-col items-center justify-center p-8 text-muted-foreground gap-3">
                               <Loader2 className="w-8 h-8 animate-spin" />
-                              <p>Loading certificate...</p>
+                              <p className="text-sm">Loading certificate...</p>
                             </div>
                           }
                           error={
                             <div className="flex flex-col items-center justify-center p-8 text-muted-foreground gap-3">
-                              <p className="text-center">
+                              <p className="text-center text-sm">
                                 {loadError ? 'Retrying...' : 'Unable to load PDF. Please try again.'}
                               </p>
                               <Button 
                                 onClick={() => {
                                   setLoadError(false);
                                   setIsLoading(true);
-                                  // Force re-render by setting null then back
                                   const cert = selectedCert;
                                   setSelectedCert(null);
                                   setTimeout(() => setSelectedCert(cert), 100);
@@ -259,18 +222,19 @@ const AllCertificationsPage = () => {
                     
                     {/* PDF Navigation Controls */}
                     {numPages && numPages > 1 && !isLoading && !loadError && (
-                      <div className="bg-background border-t border-border p-4 flex items-center justify-between">
+                      <div className="bg-background border-t border-border px-4 py-3 flex items-center justify-between">
                         <Button
                           onClick={goToPrevPage}
                           disabled={pageNumber <= 1}
                           variant="outline"
                           size="sm"
+                          className="h-8 px-2 sm:px-3"
                         >
                           <ChevronLeft className="w-4 h-4" />
-                          <span className="hidden sm:inline ml-1">Previous</span>
+                          <span className="hidden sm:inline ml-1 text-xs">Previous</span>
                         </Button>
                         
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-xs text-muted-foreground">
                           Page {pageNumber} of {numPages}
                         </div>
                         
@@ -279,15 +243,16 @@ const AllCertificationsPage = () => {
                           disabled={pageNumber >= numPages}
                           variant="outline"
                           size="sm"
+                          className="h-8 px-2 sm:px-3"
                         >
-                          <span className="hidden sm:inline mr-1">Next</span>
+                          <span className="hidden sm:inline mr-1 text-xs">Next</span>
                           <ChevronRight className="w-4 h-4" />
                         </Button>
                       </div>
                     )}
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
+                  <div className="flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-2 sm:p-4">
                     <img 
                       src={selectedCert.imagePath} 
                       alt={selectedCert.title} 
