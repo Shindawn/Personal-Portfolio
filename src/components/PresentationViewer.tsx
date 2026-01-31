@@ -175,52 +175,58 @@ const PresentationViewer = ({
 
         {/* Top page buttons (numeric thumbnails) for PDF presentations */}
         {pdfUrl && numPages && (
-          <div ref={thumbnailsRef} style={{ width: pdfWidth ? `${pdfWidth}px` : undefined }} className="w-full max-w-[800px] mx-auto flex gap-3 justify-center mb-6 px-2 overflow-hidden">
-            {/* Left-hand first if hidden */}
-            {showFirst && (
-              <button
-                onClick={() => { goToSlide(0); }}
-                className="w-10 h-10 flex items-center justify-center rounded-full border text-sm font-medium bg-secondary dark:bg-slate-800 text-foreground border-border hover:bg-slate-200 dark:hover:bg-slate-700"
-              >
-                1
-              </button>
-            )}
+          <div 
+            ref={thumbnailsRef} 
+            style={{ width: pdfWidth ? `${pdfWidth}px` : undefined }} 
+            className="w-full max-w-[800px] mx-auto flex gap-3 justify-center mb-6 px-2 overflow-x-auto overflow-y-hidden"
+          >
+            <div className="flex gap-3 mx-auto">
+              {/* Left-hand first if hidden */}
+              {showFirst && (
+                <button
+                  onClick={() => { goToSlide(0); }}
+                  className="w-10 h-10 flex items-center justify-center rounded-full border text-sm font-medium bg-secondary dark:bg-slate-800 text-foreground border-border hover:bg-slate-200 dark:hover:bg-slate-700 shrink-0"
+                >
+                  1
+                </button>
+              )}
 
-            {/* Visible window */}
-            {visibleIndices.map((i) => (
-              <button
-                key={i}
-                onClick={() => goToSlide(i)}
-                aria-current={currentSlide === i}
-                className={`w-10 h-10 flex items-center justify-center rounded-full border transition-all shrink-0 text-sm font-medium ${
-                  currentSlide === i
-                    ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white"
-                    : "bg-secondary dark:bg-slate-800 text-foreground border-border hover:bg-slate-200 dark:hover:bg-slate-700"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
+              {/* Visible window */}
+              {visibleIndices.map((i) => (
+                <button
+                  key={i}
+                  onClick={() => goToSlide(i)}
+                  aria-current={currentSlide === i}
+                  className={`w-10 h-10 flex items-center justify-center rounded-full border transition-all shrink-0 text-sm font-medium ${
+                    currentSlide === i
+                      ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white"
+                      : "bg-secondary dark:bg-slate-800 text-foreground border-border hover:bg-slate-200 dark:hover:bg-slate-700"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
 
-            {/* Right-hand last page if hidden */}
-            {showLast && (
-              <button
-                onClick={() => { goToSlide(numPages - 1); }}
-                className="w-10 h-10 flex items-center justify-center rounded-full border text-sm font-medium bg-secondary dark:bg-slate-800 text-foreground border-border hover:bg-slate-200 dark:hover:bg-slate-700"
-              >
-                {numPages}
-              </button>
-            )}
+              {/* Right-hand last page if hidden */}
+              {showLast && (
+                <button
+                  onClick={() => { goToSlide(numPages - 1); }}
+                  className="w-10 h-10 flex items-center justify-center rounded-full border text-sm font-medium bg-secondary dark:bg-slate-800 text-foreground border-border hover:bg-slate-200 dark:hover:bg-slate-700 shrink-0"
+                >
+                  {numPages}
+                </button>
+              )}
+            </div>
           </div>
         )}
 
         {/* PDF Viewer */}
         {pdfUrl && (
           <div className="flex flex-col gap-8">
-            {/* PDF Page Display - 16:9 Widescreen */}
+            {/* PDF Page Display - 16:9 Widescreen with responsive width */}
             <div
               ref={pdfWrapperRef}
-              className="rounded-lg border border-border overflow-hidden flex justify-center items-center bg-background mx-auto"
+              className="rounded-lg border border-border overflow-hidden flex justify-center items-center bg-background mx-auto w-full"
               style={{ maxWidth: '800px', aspectRatio: '16 / 9' }}
             >
               <Document
@@ -237,19 +243,21 @@ const PresentationViewer = ({
                   </div>
                 }
               >
-                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                   <div
                     style={{
                       transition: 'opacity 300ms ease',
                       opacity: isPageRendering ? 0.25 : 1,
                       width: '100%',
+                      height: '100%',
                       display: 'flex',
                       justifyContent: 'center',
+                      alignItems: 'center',
                     }}
                   >
                     <Page
                       pageNumber={currentSlide + 1}
-                      width={750}
+                      width={pdfWidth || undefined}
                       renderTextLayer={false}
                       renderAnnotationLayer={false}
                       onRenderSuccess={onPageRenderSuccess}
@@ -261,7 +269,7 @@ const PresentationViewer = ({
                     <div style={{ position: 'absolute', left: -9999, top: -9999, width: 0, height: 0, overflow: 'hidden' }} aria-hidden>
                       <Page
                         pageNumber={currentSlide + 2}
-                        width={750}
+                        width={pdfWidth || undefined}
                         renderTextLayer={false}
                         renderAnnotationLayer={false}
                         onRenderSuccess={() => setPreloadedPages((p) => ({ ...p, [currentSlide + 1]: true }))}
@@ -273,16 +281,18 @@ const PresentationViewer = ({
             </div>
 
             {/* Controls */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4">
               <Button
                 onClick={prevSlide}
                 disabled={currentSlide === 0 || isLoading || isPageRendering}
                 variant="outline"
+                className="text-xs sm:text-sm"
               >
-                ← Previous
+                <span className="hidden sm:inline">← Previous</span>
+                <span className="sm:hidden">←</span>
               </Button>
 
-              <div className="text-sm text-muted-foreground">
+              <div className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
                 Page {currentSlide + 1} of {numPages}
               </div>
 
@@ -290,12 +300,12 @@ const PresentationViewer = ({
                 onClick={nextSlide}
                 disabled={currentSlide === (numPages ? numPages - 1 : 0) || isLoading || isPageRendering}
                 variant="outline"
+                className="text-xs sm:text-sm"
               >
-                Next →
+                <span className="hidden sm:inline">Next →</span>
+                <span className="sm:hidden">→</span>
               </Button>
             </div>
-
-            {/* (Thumbnails moved to top under title) */}
 
             {/* Email Notification */}
             <div className="bg-primary/10 border border-primary/30 rounded-lg p-6 text-center">
@@ -309,7 +319,8 @@ const PresentationViewer = ({
               <a href="mailto:caadlawony@gmail.com">
                 <Button className="gap-2">
                   <Mail className="w-4 h-4" />
-                  Email: caadlawony@gmail.com
+                  <span className="hidden sm:inline">Email: caadlawony@gmail.com</span>
+                  <span className="sm:hidden">Contact Me</span>
                 </Button>
               </a>
             </div>
