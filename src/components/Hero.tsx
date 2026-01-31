@@ -32,7 +32,7 @@ const Hero = () => {
   const [phase, setPhase] = useState<"typing" | "pausing" | "deleting">("typing");
   const [isDarkTheme, setIsDarkTheme] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   // Resume viewer state
   const [isResumeOpen, setIsResumeOpen] = useState(false);
   const resumeOptions = [
@@ -54,26 +54,22 @@ const Hero = () => {
       setIsDarkTheme(document.documentElement.classList.contains("dark"));
     };
 
-    // Initial check
     checkTheme();
-
-    // Observe changes to the documentElement's class list
     const observer = new MutationObserver(checkTheme);
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
 
     return () => observer.disconnect();
   }, []);
 
-  // Calculate PDF width
   useEffect(() => {
     const updateWidth = () => {
       const width = Math.min(window.innerWidth - 100, 800);
       setPdfWidth(width);
     };
-    
+
     updateWidth();
-    window.addEventListener('resize', updateWidth);
-    return () => window.removeEventListener('resize', updateWidth);
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
   // Typing effect loop
@@ -109,28 +105,28 @@ const Hero = () => {
     };
   }, [phase, charIndex, variantIndex]);
 
-  // PDF handlers
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
+    console.log("PDF loaded — total pages:", numPages);
     setNumPages(numPages);
     setIsLoading(false);
     setLoadError(false);
   };
 
   const onDocumentLoadError = (error: Error) => {
-    console.error('PDF load error:', error);
+    console.error("PDF load error:", error);
     setLoadError(true);
     setIsLoading(false);
   };
 
   const goToNextPage = () => {
     if (numPages && pageNumber < numPages) {
-      setPageNumber(prev => prev + 1);
+      setPageNumber((prev) => prev + 1);
     }
   };
 
   const goToPrevPage = () => {
     if (pageNumber > 1) {
-      setPageNumber(prev => prev - 1);
+      setPageNumber((prev) => prev - 1);
     }
   };
 
@@ -242,8 +238,8 @@ const Hero = () => {
                   Send Email
                 </Button>
               </a>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="gap-2"
                 onClick={() => setIsModalOpen(true)}
               >
@@ -286,7 +282,6 @@ const Hero = () => {
               </div>
 
               <div className="p-6">
-                {/* OJT summary card */}
                 <div className="mb-4 p-4 bg-muted/50 rounded-lg border border-border">
                   <div className="flex items-center justify-between">
                     <div>
@@ -357,7 +352,9 @@ const Hero = () => {
                       <button
                         key={opt.label}
                         onClick={() => handleResumeChange(idx)}
-                        className={`px-3 py-1 rounded-full text-sm border whitespace-nowrap ${selectedResumeIndex === idx ? 'bg-foreground text-card' : 'bg-transparent text-muted-foreground border-border'}`}
+                        className={`px-3 py-1 rounded-full text-sm border whitespace-nowrap ${
+                          selectedResumeIndex === idx ? "bg-foreground text-card" : "bg-transparent text-muted-foreground border-border"
+                        }`}
                         aria-pressed={selectedResumeIndex === idx}
                       >
                         {opt.label}
@@ -365,7 +362,7 @@ const Hero = () => {
                     ))}
                   </div>
 
-                  <a href={selectedResume.url} download={`${selectedResume.label.replace(/\s+/g, '-')}.pdf`} className="ml-2 block">
+                  <a href={selectedResume.url} download={`${selectedResume.label.replace(/\s+/g, "-")}.pdf`} className="ml-2 block">
                     <Button className="gap-2 px-3 py-1 text-sm">
                       <Download className="w-4 h-4" />
                       <span className="hidden sm:inline">Download</span>
@@ -379,7 +376,14 @@ const Hero = () => {
               </div>
 
               {/* PDF Viewer */}
-              <div className="flex-1 overflow-auto bg-gray-100 dark:bg-gray-900 flex flex-col items-center justify-start p-4">
+              <div className="flex-1 overflow-auto bg-gray-100 dark:bg-gray-900 flex flex-col items-center justify-start p-4 relative">
+                {isLoading && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm z-10">
+                    <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+                    <p className="text-white font-medium">Loading resume...</p>
+                  </div>
+                )}
+
                 <Document
                   key={selectedResume.url}
                   file={selectedResume.url}
@@ -392,36 +396,35 @@ const Hero = () => {
                     </div>
                   }
                   error={
-                    <div className="flex flex-col items-center justify-center p-8 text-muted-foreground gap-3">
-                      <p className="text-center">Unable to load resume. Please try again.</p>
-                      <Button 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
+                    <div className="flex flex-col items-center justify-center p-8 text-muted-foreground gap-3 text-center">
+                      <p>Unable to load resume. Please try again.</p>
+                      <Button
+                        onClick={() => {
+                          setLoadError(false);
+                          setIsLoading(true);
                           handleResumeChange(selectedResumeIndex);
                         }}
                         variant="outline"
                         size="sm"
-                        type="button"
                       >
                         Retry
                       </Button>
                     </div>
                   }
                   options={{
-                    cMapUrl: 'https://unpkg.com/pdfjs-dist@3.11.174/cmaps/',
+                    cMapUrl: "https://unpkg.com/pdfjs-dist@3.11.174/cmaps/",
                     cMapPacked: true,
-                    standardFontDataUrl: 'https://unpkg.com/pdfjs-dist@3.11.174/standard_fonts/',
+                    standardFontDataUrl: "https://unpkg.com/pdfjs-dist@3.11.174/standard_fonts/",
                   }}
                 >
                   {!isLoading && !loadError && (
                     <Page
-                      key={`page-${pageNumber}`}
+                      key={`page-${pageNumber}-${selectedResume.url}`}
                       pageNumber={pageNumber}
                       width={pdfWidth || undefined}
                       renderTextLayer={true}
                       renderAnnotationLayer={true}
-                      className="shadow-lg"
+                      className="shadow-lg bg-white"
                       loading={
                         <div className="flex items-center justify-center p-8">
                           <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
@@ -432,33 +435,38 @@ const Hero = () => {
                 </Document>
               </div>
 
-              {/* PDF Navigation Controls */}
-              {numPages && numPages > 1 && !isLoading && !loadError && (
+              {/* Navigation */}
+              {numPages && numPages > 1 && (
                 <div className="bg-card border-t border-border p-4 flex items-center justify-between">
                   <Button
                     onClick={goToPrevPage}
-                    disabled={pageNumber <= 1}
+                    disabled={pageNumber <= 1 || isLoading}
                     variant="outline"
                     size="sm"
-                    type="button"
                   >
-                    <ChevronLeft className="w-4 h-4" />
-                    <span className="hidden sm:inline ml-1">Previous</span>
+                    <ChevronLeft className="w-4 h-4 mr-1" />
+                    Previous
                   </Button>
-                  
-                  <div className="text-sm text-muted-foreground">
-                    Page {pageNumber} of {numPages}
+
+                  <div className="text-sm font-medium">
+                    {isLoading ? (
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Loading page...
+                      </span>
+                    ) : (
+                      `Page ${pageNumber} of ${numPages}`
+                    )}
                   </div>
-                  
+
                   <Button
                     onClick={goToNextPage}
-                    disabled={pageNumber >= numPages}
+                    disabled={pageNumber >= numPages || isLoading}
                     variant="outline"
                     size="sm"
-                    type="button"
                   >
-                    <span className="hidden sm:inline mr-1">Next</span>
-                    <ChevronRight className="w-4 h-4" />
+                    Next
+                    <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
                 </div>
               )}
