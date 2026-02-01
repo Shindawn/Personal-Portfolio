@@ -30,6 +30,10 @@ const fallbackQA = [
     keywords: ["who are you", "sino ka", "about you", "tell me about"],
     answer: "I'm Lescy G. Caadlawon, a 4th year BS IT student at Catanduanes State University. I specialize in web development (React, TypeScript, Tailwind) and UI/UX design. I'm currently looking for internship opportunities!"
   },
+    {
+    keywords: ["Parents", "Siblings", "Crush", "Friends", "Personal life"],
+    answer: "I prefer to keep my personal details private, but I’m happy to talk about my experience, skills, and the projects I’ve worked on. You can ask me about my background in web development, UI/UX design, or my tech stack!"
+  },
   {
     keywords: ["internship", "ojt", "applied", "company", "hire", "hiring", "looking", "opportunity"],
     answer: "I'm actively looking for internship/OJT opportunities and open to offers. I can share my documents (resume, endorsements, etc.) and I'm excited to contribute as a web/UI developer."
