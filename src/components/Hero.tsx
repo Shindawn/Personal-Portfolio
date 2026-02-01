@@ -105,11 +105,12 @@ const Hero = () => {
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
   };
-
+  const [pdfKey, setPdfKey] = useState(0); // To force re-render PDF Document
   const handleResumeChange = (index: number) => {
     if (index === selectedResumeIndex) return;
     setSelectedResumeIndex(index);
     setNumPages(null);
+    setPdfKey((k) => + 1);
   };
 
   return (
@@ -338,7 +339,7 @@ const Hero = () => {
               {/* PDF Viewer */}
               <div className="flex-1 overflow-auto bg-gray-100 dark:bg-gray-900 p-4">
                 <Document
-                  key={selectedResume.url} 
+                  key={pdfKey} 
                   file={selectedResume.url}
                   onLoadSuccess={onDocumentLoadSuccess}
                   loading={
