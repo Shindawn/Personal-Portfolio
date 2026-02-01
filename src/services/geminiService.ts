@@ -47,8 +47,8 @@ const fallbackQA = [
     answer: "You can reach me at caadlawony@gmail.com or through my social media links on the portfolio. I'd love to connect!"
   },
   {
-    keywords: ["gpa", "grade"],
-    answer: "My current GPA is 1.40. I'm focused on practical skills and real-world projects alongside my academics."
+    keywords: ["gwa", "grade"],
+    answer: "My current GWA is 1.32. I'm focused on practical skills and real-world projects alongside my academics."
   },
   {
     keywords: ["location", "where", "catanduanes"],
