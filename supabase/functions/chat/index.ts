@@ -28,7 +28,6 @@ serve(async (req: Request) => {
   }
 
   // 2. Security: Origin Validation
-  // This matches your Vercel URL to stop the 403 error
   const origin = req.headers.get("origin");
   const allowedOrigins = [
     "https://lescygcaadlawon.vercel.app", 
@@ -111,9 +110,9 @@ serve(async (req: Request) => {
 
     const fullPrompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${conversationHistory}\n\nCurrent User Question: ${lastUserMessage}\n\nRespond as Lescy:`;
 
-    // Changed to gemini-1.5-flash for better compatibility
+    // Your original model restored
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -129,10 +128,11 @@ serve(async (req: Request) => {
 
     const data = await response.json();
 
-    // Debug log — check this in Supabase Edge Function logs
+    // Debug logs — check these in Supabase Dashboard > Edge Functions > Logs
+    console.log("Gemini HTTP status:", response.status);
     console.log("Gemini raw response:", JSON.stringify(data));
 
-    // If Gemini returned an error, catch it explicitly
+    // Catch any Gemini error explicitly so it shows in the chatbot
     if (data.error) {
       console.error("Gemini API error:", JSON.stringify(data.error));
       return new Response(JSON.stringify({ success: false, response: `Gemini error: ${data.error.message}` }), {
