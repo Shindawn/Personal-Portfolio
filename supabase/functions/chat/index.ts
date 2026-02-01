@@ -111,9 +111,9 @@ serve(async (req: Request) => {
 
     const fullPrompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${conversationHistory}\n\nCurrent User Question: ${lastUserMessage}\n\nRespond as Lescy:`;
 
-    // Keeping your preferred model
+    // Changed to gemini-1.5-flash for better compatibility
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -128,6 +128,18 @@ serve(async (req: Request) => {
     );
 
     const data = await response.json();
+
+    // Debug log — check this in Supabase Edge Function logs
+    console.log("Gemini raw response:", JSON.stringify(data));
+
+    // If Gemini returned an error, catch it explicitly
+    if (data.error) {
+      console.error("Gemini API error:", JSON.stringify(data.error));
+      return new Response(JSON.stringify({ success: false, response: `Gemini error: ${data.error.message}` }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Hi! I'm Lescy. How can I help? 😊";
 
     return new Response(JSON.stringify({ success: true, response: text }), {
