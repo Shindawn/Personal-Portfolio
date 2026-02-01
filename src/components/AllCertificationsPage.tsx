@@ -93,7 +93,8 @@ const AllCertificationsPage = () => {
     >
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Header */}
-        <div className="flex items-center justify-center relative mb-6 sm:mb-8">
+        // ✅ Fix
+<div className="flex items-center justify-end sm:justify-end relative mb-6 sm:mb-8">
           <Link to="/" className="absolute left-0">
             <Button variant="outline" className="gap-2 h-9 w-9 p-0 flex items-center justify-center">
               <ArrowLeft className="w-4 h-4" />
