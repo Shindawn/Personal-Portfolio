@@ -338,6 +338,7 @@ const Hero = () => {
               {/* PDF Viewer */}
               <div className="flex-1 overflow-auto bg-gray-100 dark:bg-gray-900 p-4">
                 <Document
+                  key={selectedResume.url} 
                   file={selectedResume.url}
                   onLoadSuccess={onDocumentLoadSuccess}
                   loading={
