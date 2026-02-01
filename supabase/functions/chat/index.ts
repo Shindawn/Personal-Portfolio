@@ -110,7 +110,6 @@ serve(async (req: Request) => {
 
     const fullPrompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${conversationHistory}\n\nCurrent User Question: ${lastUserMessage}\n\nRespond as Lescy:`;
 
-    // Your original model restored
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
@@ -128,14 +127,18 @@ serve(async (req: Request) => {
 
     const data = await response.json();
 
-    // Debug logs — check these in Supabase Dashboard > Edge Functions > Logs
-    console.log("Gemini HTTP status:", response.status);
-    console.log("Gemini raw response:", JSON.stringify(data));
+    // Quota exceeded — tell frontend to use fallback Q&A
+    if (data.error?.code === 429) {
+      console.log("Gemini quota reached, signaling fallback.");
+      return new Response(JSON.stringify({ success: false, quotaExceeded: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
-    // Catch any Gemini error explicitly so it shows in the chatbot
+    // Any other Gemini error — also signal fallback
     if (data.error) {
       console.error("Gemini API error:", JSON.stringify(data.error));
-      return new Response(JSON.stringify({ success: false, response: `Gemini error: ${data.error.message}` }), {
+      return new Response(JSON.stringify({ success: false, quotaExceeded: false }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }

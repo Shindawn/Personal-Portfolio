@@ -60,6 +60,10 @@ const getFallbackAnswer = (input: string): string => {
   return "I'm not sure about that, but feel free to ask me about my skills, projects, experience, or reach out via email at caadlawony@gmail.com!";
 };
 
+// Friendly message shown once when quota is hit, before falling back to Q&A
+const QUOTA_MESSAGE =
+  "Hey there! 😊 I'm currently running on limited mode, so I might not be able to answer everything perfectly. Feel free to ask me about my skills, projects, or experience — I can still help with those!";
+
 /**
  * Main function to get AI response
  */
@@ -86,11 +90,24 @@ export const getChatResponse = async (userMessage: string): Promise<string> => {
 
     if (resp.ok) {
       const data = await resp.json();
-      console.log("🚀 Chatbot: Server responded successfully!");
-      
-      // Return the 'response' field from your Supabase JSON output
-      if (data?.response) return data.response;
-      
+
+      // AI responded successfully — return the response
+      if (data.success && data.response) {
+        console.log("🚀 Chatbot: Server responded successfully!");
+        return data.response;
+      }
+
+      // Quota exceeded — show friendly message first, then fall back to Q&A
+      if (data.quotaExceeded) {
+        console.warn("⚠️ Chatbot: Gemini quota reached. Falling back to Q&A.");
+        const fallback = getFallbackAnswer(userMessage);
+        // Return the quota notice + the Q&A answer together
+        return `${QUOTA_MESSAGE}\n\n${fallback}`;
+      }
+
+      // Other non-success from backend — just fall back quietly
+      console.warn("⚠️ Chatbot: Non-success response from server. Falling back to Q&A.");
+
     } else {
       console.error(`❌ Chatbot: Server returned status ${resp.status}`);
       if (resp.status === 401) {
