@@ -14,6 +14,12 @@ console.log("🤖 Chatbot Status:", {
   auth: SUPABASE_KEY ? "✅ Key Found" : "❌ Missing VITE_SUPABASE_PUBLISHABLE_KEY"
 });
 
+// Tracks whether we've already shown the quota notice this session
+let quotaNoticeSent = false;
+
+// Once quota is hit, skip the backend entirely for the rest of the session
+let useLocalOnly = false;
+
 // Fallback Q&A data for when API is unavailable
 const fallbackQA = [
   {
@@ -60,7 +66,7 @@ const getFallbackAnswer = (input: string): string => {
   return "I'm not sure about that, but feel free to ask me about my skills, projects, experience, or reach out via email at caadlawony@gmail.com!";
 };
 
-// Friendly message shown once when quota is hit, before falling back to Q&A
+// Friendly message shown only once when quota is first hit
 const QUOTA_MESSAGE =
   "Hey there! 😊 I'm currently running on limited mode, so I might not be able to answer everything perfectly. Feel free to ask me about my skills, projects, or experience — I can still help with those!";
 
@@ -74,6 +80,12 @@ export const getChatResponse = async (userMessage: string): Promise<string> => {
     return getFallbackAnswer(userMessage);
   }
 
+  // Already know quota is hit — skip the backend, go straight to Q&A
+  if (useLocalOnly) {
+    console.log("ℹ️ Chatbot: Using local Q&A (quota previously reached).");
+    return getFallbackAnswer(userMessage);
+  }
+
   try {
     const resp = await fetch(CHAT_FUNCTION_URL, {
       method: "POST",
@@ -82,7 +94,6 @@ export const getChatResponse = async (userMessage: string): Promise<string> => {
         "apikey": SUPABASE_KEY,
         "Authorization": `Bearer ${SUPABASE_KEY}`
       },
-      // We send 'messages' as an array to match your Supabase index.ts validation
       body: JSON.stringify({ 
         messages: [{ role: "user", content: userMessage }] 
       }),
@@ -97,15 +108,22 @@ export const getChatResponse = async (userMessage: string): Promise<string> => {
         return data.response;
       }
 
-      // Quota exceeded — show friendly message first, then fall back to Q&A
+      // Quota exceeded — show notice once, then switch to local only
       if (data.quotaExceeded) {
-        console.warn("⚠️ Chatbot: Gemini quota reached. Falling back to Q&A.");
-        const fallback = getFallbackAnswer(userMessage);
-        // Return the quota notice + the Q&A answer together
-        return `${QUOTA_MESSAGE}\n\n${fallback}`;
+        console.warn("⚠️ Chatbot: Gemini quota reached. Switching to local Q&A.");
+        useLocalOnly = true;
+
+        // First time hitting quota — show the notice + the matching Q&A answer
+        if (!quotaNoticeSent) {
+          quotaNoticeSent = true;
+          return `${QUOTA_MESSAGE}\n\n${getFallbackAnswer(userMessage)}`;
+        }
+
+        // Already sent the notice before (shouldn't normally reach here, but just in case)
+        return getFallbackAnswer(userMessage);
       }
 
-      // Other non-success from backend — just fall back quietly
+      // Other non-success from backend — fall back quietly
       console.warn("⚠️ Chatbot: Non-success response from server. Falling back to Q&A.");
 
     } else {
