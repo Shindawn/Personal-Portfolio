@@ -110,7 +110,7 @@ const Hero = () => {
     if (index === selectedResumeIndex) return;
     setSelectedResumeIndex(index);
     setNumPages(null);
-    setPdfKey((k) => + 1);
+    setPdfKey((k) => k + 1);
   };
 
   return (
