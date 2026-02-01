@@ -50,7 +50,7 @@ export const projects = [
     description: "Capstone colloquium presentation with smooth animations and professional transitions. Interactive PDF viewer for seamless slide navigation.",
     tech: ["PowerPoint", "Presentation"],
     link: "/presentation/psc9",
-    pdf: "/presentations/Colliquim.pdf",
+    pdf: "/presentations/PSC9.pdf",
     slug: "psc9",
     category: "Presentation",
     type: "presentation",
