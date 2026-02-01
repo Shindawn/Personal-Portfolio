@@ -125,15 +125,14 @@ const Chatbot = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-x-0 bottom-0 sm:inset-x-auto sm:bottom-6 sm:right-6 z-50"
+            className="fixed bottom-6 right-6 z-50"
           >
             <div
-              className={`relative w-full sm:w-[400px] rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col ${
+              className={`relative w-[350px] sm:w-[400px] h-[550px] rounded-2xl shadow-2xl flex flex-col ${
                 isDark
                   ? "bg-gray-900 border border-gray-700"
                   : "bg-white border border-gray-200"
               }`}
-              style={{ height: "85vh", maxHeight: "550px" }}
             >
               {/* Close Button */}
               <button
