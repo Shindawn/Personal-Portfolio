@@ -37,7 +37,7 @@ const Hero = () => {
   const [isResumeOpen, setIsResumeOpen] = useState(false);
   const resumeOptions = [
     { label: "School Format", url: "/resumes/resume-cict.pdf" },
-    { label: "Standard Format", url: "/resumes/standard.pdf" },
+    { label: "Standard Format", url: "/resumes/new.pdf" },
   ];
   const [selectedResumeIndex, setSelectedResumeIndex] = useState(0);
   const selectedResume = resumeOptions[selectedResumeIndex];
