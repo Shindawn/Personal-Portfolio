@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, FolderOpen, ExternalLink, Github, Presentation, Play } from "lucide-react";
+import { ArrowLeft, FolderOpen, ExternalLink, Github, Presentation } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -72,12 +72,6 @@ const AllProjectsPage = () => {
     return projects.filter((project) => project.category === filter);
   }, [filter]);
 
-  // Find capstone project
-  const capstoneProject = projects.find(project => 
-    project.title.toLowerCase().includes('capstone') || 
-    project.category === 'Presentation'
-  );
-
   return (
     <motion.section
       initial={{ opacity: 0, y: 20 }}
@@ -97,77 +91,6 @@ const AllProjectsPage = () => {
             <FolderOpen className="w-5 h-5 sm:w-6 sm:h-6" /> All Projects
           </h1>
         </div>
-
-        {/* Capstone Video Section */}
-        {capstoneProject && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mb-8"
-          >
-            <Card className="overflow-hidden">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Play className="w-5 h-5" />
-                  {capstoneProject.title} - System Walkthrough
-                </CardTitle>
-                <CardDescription>
-                  Watch the complete system demonstration before viewing the presentation slides
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="relative w-full" style={{ paddingBottom: '56.25%' /* 16:9 aspect ratio */ }}>
-                  <video
-                    className="absolute top-0 left-0 w-full h-full object-cover"
-                    controls
-                    preload="metadata"
-                    poster="/presentations/ariba.jpg" // Optional: add a thumbnail
-                  >
-                    <source src="/presentations/aribacomp.mp4" type="video/mp4" />
-                    {/* <source src="/path/to/your/capstone-walkthrough.webm" type="video/webm" /> */}
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-between items-center">
-                <div className="flex gap-2">
-                  {capstoneProject.tech.slice(0, 3).map((tech) => (
-                    <span
-                      key={tech}
-                      className="text-xs px-2 py-1 rounded-md bg-secondary text-secondary-foreground"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                  {capstoneProject.tech.length > 3 && (
-                    <span className="text-xs px-2 py-1 rounded-md bg-secondary text-secondary-foreground">
-                      +{capstoneProject.tech.length - 3} more
-                    </span>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  {capstoneProject.github && (
-                    <Button variant="outline" size="sm" asChild>
-                      <a href={capstoneProject.github} target="_blank" rel="noopener noreferrer">
-                        <Github className="w-4 h-4" />
-                        <span className="ml-1">Code</span>
-                      </a>
-                    </Button>
-                  )}
-                  {capstoneProject.link && capstoneProject.link !== "#" && (
-                    <Button variant="outline" size="sm" asChild>
-                      <Link to={capstoneProject.link}>
-                        <Presentation className="w-4 h-4" />
-                        <span className="ml-1">View Slides</span>
-                      </Link>
-                    </Button>
-                  )}
-                </div>
-              </CardFooter>
-            </Card>
-          </motion.div>
-        )}
 
         {/* Filter Buttons */}
         <div className="flex flex-wrap gap-2 mb-4">

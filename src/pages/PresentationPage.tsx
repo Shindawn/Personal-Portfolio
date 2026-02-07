@@ -15,10 +15,17 @@ const PresentationPage = () => {
     return <Navigate to="/projects" replace />;
   }
 
+  // Check if this is the capstone presentation and set video URL
+  const isCapstone = presentation.title.toLowerCase().includes('capstone');
+  const videoUrl = isCapstone ? "/path/to/your/capstone-walkthrough.mp4" : undefined;
+  const videoThumbnail = isCapstone ? "/path/to/your/video-thumbnail.jpg" : undefined;
+
   return (
     <PresentationViewer
       title={presentation.title}
       pdfUrl={presentation.pdf}
+      videoUrl={videoUrl}
+      videoThumbnail={videoThumbnail}
     />
   );
 };

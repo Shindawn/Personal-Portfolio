@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Mail } from "lucide-react";
+import { ArrowLeft, Mail, Play } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -19,6 +20,8 @@ interface PresentationViewerProps {
     title: string;
     content: React.ReactNode;
   }>;
+  videoUrl?: string; // Optional video URL for capstone
+  videoThumbnail?: string; // Optional video thumbnail
 }
 
 const PresentationViewer = ({
@@ -26,6 +29,8 @@ const PresentationViewer = ({
   presentationUrl,
   pdfUrl: initialPdfUrl,
   slides = [],
+  videoUrl,
+  videoThumbnail,
 }: PresentationViewerProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [numPages, setNumPages] = useState<number | null>(null);
@@ -172,6 +177,42 @@ const PresentationViewer = ({
         </div>
 
         <h1 className="text-4xl font-bold font-display mb-4 text-center">{title}</h1>
+
+        {/* Video Section - Shows if videoUrl is provided */}
+        {videoUrl && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="mb-8"
+          >
+            <Card className="overflow-hidden">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Play className="w-5 h-5" />
+                  System Walkthrough
+                </CardTitle>
+                <CardDescription>
+                  Watch the complete system demonstration before viewing the presentation slides
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="relative w-full" style={{ paddingBottom: '56.25%' /* 16:9 aspect ratio */ }}>
+                  <video
+                    className="absolute top-0 left-0 w-full h-full object-cover"
+                    controls
+                    preload="metadata"
+                    poster={videoThumbnail}
+                  >
+                    <source src={videoUrl} type="video/mp4" />
+                    <source src={videoUrl.replace('.mp4', '.webm')} type="video/webm" />
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Top page buttons (numeric thumbnails) for PDF presentations */}
         {pdfUrl && numPages && (
