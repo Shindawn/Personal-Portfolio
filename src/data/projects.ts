@@ -6,7 +6,7 @@ export const projects = [
     category: "Web Development",
   },
    {
-    title: "Capstone Colliqiuim Presentation",
+    title: "Capstone Colloquium Presentation",
     description: "PowerPoint presentation template with professional design and smooth animations for academic and business use.",
     tech: ["PowerPoint", "Template"],
     link: "/presentation/colliquim-template",
@@ -47,7 +47,7 @@ export const projects = [
   },
   {
     title: "PSC9 Pitch Deck",
-    description: "Capstone colloquium presentation with smooth animations and professional transitions. Interactive PDF viewer for seamless slide navigation.",
+    description: "A pitch deck presentation template designed for startup founders and entrepreneurs to effectively communicate their business ideas, market potential, and growth strategies to investors and stakeholders.  ",
     tech: ["PowerPoint", "Presentation"],
     link: "/presentation/psc9",
     pdf: "/presentations/PSC9.pdf",
