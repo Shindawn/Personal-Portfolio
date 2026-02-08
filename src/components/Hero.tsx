@@ -188,7 +188,7 @@ const Hero = () => {
             >
               <Button className="gap-2 w-full sm:w-auto" onClick={() => setIsResumeOpen(true)}>
                 <Eye className="w-4 h-4" />
-                View Resume
+                View CV
               </Button>
               <a href="mailto:caadlawony@gmail.com">
                 <Button variant="outline" className="gap-2">
@@ -301,7 +301,7 @@ const Hero = () => {
               {/* Header */}
               <div className="bg-card border-b border-border p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="mb-2 sm:mb-0">
-                  <h3 className="text-lg font-semibold">View Resume</h3>
+                  <h3 className="text-lg font-semibold">View CV</h3>
                   <p className="text-sm text-muted-foreground">
                     {numPages ? `${numPages} page${numPages > 1 ? 's' : ''}` : 'Loading...'}
                   </p>

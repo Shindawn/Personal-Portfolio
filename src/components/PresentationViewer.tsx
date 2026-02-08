@@ -299,7 +299,7 @@ const PresentationViewer = ({
           <a href="mailto:caadlawony@gmail.com">
             <Button className="gap-2">
               <Mail className="w-4 h-4" />
-              <span>Email: caadlawony@gmail.com</span>
+              <span>caadlawony@gmail.com</span>
             </Button>
           </a>
         </div>
