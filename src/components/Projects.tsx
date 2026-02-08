@@ -77,16 +77,18 @@ const Projects = () => {
                 {project.title}
               </h3>
               <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  asChild
-                >
-                  <a href={project.link} target="_blank" rel="noopener noreferrer">
-                    {getLivedemolLogo(project)}
-                    <span className="ml-1">Live Demo</span>
-                  </a>
-                </Button>
+                {project.title !== "Portfolio Website" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                  >
+                    <a href={project.link} target="_blank" rel="noopener noreferrer">
+                      {getLivedemolLogo(project)}
+                      <span className="ml-1">Live Demo</span>
+                    </a>
+                  </Button>
+                )}
                 {project.github && project.github !== "#" && (
                   <Button
                     variant="outline"

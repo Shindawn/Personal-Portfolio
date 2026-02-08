@@ -155,7 +155,7 @@ const AllProjectsPage = () => {
                     <CardTitle className="flex items-center justify-between">
                       {project.title}
                       <div className="flex gap-2">
-                        {project.link && project.link !== "#" && (
+                        {project.link && project.link !== "#" && project.title !== "Portfolio Website" && (
                           <>
                             {(project as any).type === "presentation" ? (
                               <Button
