@@ -77,7 +77,8 @@ const Projects = () => {
                 {project.title}
               </h3>
               <div className="flex gap-2">
-                {project.title !== "Portfolio Website" && (
+                {project.title !== "Portfolio Website" && 
+                 !project.title.toLowerCase().includes("capstone") && (
                   <Button
                     variant="outline"
                     size="sm"
