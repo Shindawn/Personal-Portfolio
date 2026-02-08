@@ -193,7 +193,7 @@ const PresentationViewer = ({
                   System Walkthrough
                 </CardTitle>
                 <CardDescription>
-                  Watch the complete system demonstration before viewing the presentation slides
+                  This is a compressed video, optimized for web playback. Quality is reduced to ensure smooth streaming.
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0">
