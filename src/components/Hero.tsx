@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Mail, Download, FileText, X, Eye, Loader2 } from "lucide-react";
+import { MapPin, Mail, Download, X, Eye, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import profileImageLight from "@/assets/profile-light.jpg";
 import profileImageDark from "@/assets/profile-dark.jpg";
@@ -15,23 +15,12 @@ pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 const baseRole = "BSIT 4th Year";
 const dynamicRoles = ["UI/UX Designer", "Aspiring Software Developer", "Cybersecurity Enthusiast"];
 
-const ojtRequirements = [
-  "Memorandum of Agreement (MOA)",
-  "Medical Certificate",
-  "Waiver",
-  "Endorsement Letter",
-  "Resume/CV",
-  "School ID Copy",
-  "Brgy. Clearance",
-];
-
 const Hero = () => {
   // Typing effect state
   const [variantIndex, setVariantIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [phase, setPhase] = useState<"typing" | "pausing" | "deleting">("typing");
   const [isDarkTheme, setIsDarkTheme] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Resume viewer state
   const [isResumeOpen, setIsResumeOpen] = useState(false);
@@ -105,7 +94,7 @@ const Hero = () => {
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
   };
-  const [pdfKey, setPdfKey] = useState(0); // To force re-render PDF Document
+  const [pdfKey, setPdfKey] = useState(0);
   const handleResumeChange = (index: number) => {
     if (index === selectedResumeIndex) return;
     setSelectedResumeIndex(index);
@@ -196,92 +185,13 @@ const Hero = () => {
                   Send Email
                 </Button>
               </a>
-              <Button
-                variant="outline"
-                className="gap-2"
-                onClick={() => setIsModalOpen(true)}
-              >
-                <FileText className="w-4 h-4" />
-                OJT Requirements
-              </Button>
             </motion.div>
           </div>
         </div>
       </motion.section>
 
-      {/* OJT Requirements Modal */}
+      {/* Resume Viewer Modal */}
       <AnimatePresence>
-        {isModalOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setIsModalOpen(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: "spring", duration: 0.5 }}
-              className="bg-card border border-border rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="sticky top-0 bg-card border-b border-border p-6 flex items-center justify-between">
-                <h2 className="text-2xl font-display font-bold text-foreground">
-                  OJT Requirements
-                </h2>
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="p-2 hover:bg-muted rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="p-6">
-                <div className="mb-4 p-4 bg-muted/50 rounded-lg border border-border">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">OJT Requirement</p>
-                      <p className="text-lg font-semibold">486 hrs</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-muted-foreground">Expected deployment</p>
-                      <p className="text-lg font-semibold">February 17, 2026</p>
-                    </div>
-                  </div>
-                </div>
-                <p className="text-muted-foreground mb-6">
-                  I can provide the following documents for OJT application and onboarding:
-                </p>
-
-                <ul className="space-y-3">
-                  {ojtRequirements.map((requirement, index) => (
-                    <motion.li
-                      key={requirement}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
-                    >
-                      <div className="w-2 h-2 rounded-full bg-emerald-500 mt-2 flex-shrink-0" />
-                      <span className="text-foreground">{requirement}</span>
-                    </motion.li>
-                  ))}
-                </ul>
-
-                <div className="mt-6 p-4 bg-muted/50 rounded-lg border border-border">
-                  <p className="text-sm text-muted-foreground">
-                    All documents can be provided upon request. Feel free to contact me for any additional requirements.
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-
-        {/* Resume Viewer Modal */}
         {isResumeOpen && (
           <motion.div
             initial={{ opacity: 0 }}
