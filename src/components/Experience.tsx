@@ -46,7 +46,7 @@ const PulsingCircle = () => (
 const experiences = [
   {
     year: "2026",
-    title: "IT Intern",
+    title: "IT Support & Maintenance Intern",
     company: "DPWH - Catanduanes",
   },
   {
