@@ -160,4 +160,12 @@ export const certifications: Certificate[] = [
     description: 'Statement of Accomplishment',
     year: 2025,
   },
+    {
+    id: '20',
+    title: 'Junior CyberSecurity Analyst Path',
+    category: 'Cisco',
+    imagePath: '/certs/JuniorCyber.pdf',
+    description: 'Statement of Accomplishment',
+    year: 2026,
+  },
 ];
