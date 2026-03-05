@@ -265,7 +265,7 @@ const PresentationViewer = ({
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Play className="w-5 h-5" />
-                  System Walkthrough
+                  Video System Walkthrough
                 </CardTitle>
                 <CardDescription>
                   This is a compressed video, optimized for web playback.
