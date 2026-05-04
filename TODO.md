@@ -1,2 +1,0 @@
-- [ ] Import Framer icon from lucide-react in AllProjectsPage.tsx
-- [ ] Modify the GitHub button in CardFooter to conditionally show Framer icon and link for "Wedding RSVP Website" and "ARIBA Bato" projects
