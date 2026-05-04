@@ -1,7 +1,7 @@
 export interface Certificate {
   id: string;
   title: string;
-  category: 'Cisco' | 'DICT' | 'DataCamp' | 'CatSU' | 'Google' | 'other' | 'HackerRank';
+  category: 'Cisco' | 'DICT' | 'DataCamp' | 'CatSU' | 'Google' | 'Oracle' | 'HackerRank' | 'other';
   imagePath: string; // Path to the image or PDF in the public/certs directory
   description?: string;
   year: number; // Added year property for sorting
@@ -11,17 +11,17 @@ export const certifications: Certificate[] = [
    {
     id: '1',
     title: 'Employment Coaching & Career Counseling Seminar',
-    category: 'CatSU',
-    imagePath: '/certs/employment.jpg',
-    description: 'Certificate of Participation',
+    category: 'Oracle',
+    imagePath: '/oracle.jpg',
+    description: 'Certificate of Accomplishment',
     year: 2026,
   },
    {
     id: '2',
-    title: 'Anti-Sexual Harassment & Safe Spaces: Upholding Rights and Dignity in Educational Institutions',
-    category: 'CatSU',
-    imagePath: '/certs/sexual.jpg',
-    description: 'Certificate of Participation',
+    title: 'Cisco Junior Cybersecurity Analyst Career Path',
+    category: 'Cisco',
+    imagePath: '/certs/juniorcyber.pdf',
+    description: 'Certificate of Accomplishment',
     year: 2026,
   },
   {
