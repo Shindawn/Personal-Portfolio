@@ -218,22 +218,28 @@ const Hero = () => {
                 <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                   <div className="flex gap-2">
                     {resumeOptions.map((opt, idx) => (
-                      <button
+                      <Button
                         key={opt.label}
+                        size="default"
+                        variant="outline"
                         onClick={() => handleResumeChange(idx)}
-                        className={`px-3 py-1 rounded-full text-sm border whitespace-nowrap transition-colors ${
-                          selectedResumeIndex === idx 
-                            ? "bg-foreground text-card" 
-                            : "bg-transparent text-muted-foreground border-border hover:bg-muted"
-                        }`}
+                        className={`px-3 text-sm rounded-full whitespace-nowrap transition-colors ${
+                          selectedResumeIndex === idx
+                            ? "bg-background text-foreground border-border"
+                            : "bg-background text-muted-foreground border-border"
+                        } hover:bg-sky-500 hover:text-white dark:hover:bg-sky-600`}
                       >
                         {opt.label}
-                      </button>
+                      </Button>
                     ))}
                   </div>
 
                   <a href={selectedResume.url} download className="ml-2">
-                    <Button className="gap-2 px-3 py-1 text-sm">
+                    <Button
+                      size="default"
+                      variant="outline"
+                      className="gap-2 px-3 text-sm hover:bg-sky-500 hover:text-white dark:hover:bg-sky-600"
+                    >
                       <Download className="w-4 h-4" />
                       <span className="hidden sm:inline">Download</span>
                     </Button>
