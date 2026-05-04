@@ -25,7 +25,7 @@ const About = () => {
           Hello! I'm a graduating BSIT 4th year student with a keen interest in full stack development
           
           and UI/UX design. I blend creativity with technical skills to build meaningful 
-          digital experiences that make a difference.
+          digital experiences that make a difference!
         </p>
         <p>
           Currently focused on full-stack development using modern technologies like React, 
