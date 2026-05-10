@@ -14,8 +14,8 @@ const galleryImages = [
   "/gallery/college8.jpg",
   "/gallery/college9.jpg",
   "/gallery/college10.jpg",
-  "/gallery/college11.jpg",
-  "/gallery/college12.jpg",
+  "/gallery/image11.jpg",
+  "/gallery/image12.jpg",
   
 ];
 
