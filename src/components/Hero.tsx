@@ -36,8 +36,14 @@ const Hero = () => {
 
   useEffect(() => {
     const checkTheme = () => {
-      setIsDarkTheme(document.documentElement.classList.contains("dark"));
+      const hasDarkClass = document.documentElement.classList.contains("dark");
+      setIsDarkTheme(hasDarkClass);
     };
+
+    // Apply dark mode by default if not set
+    if (!document.documentElement.classList.contains("dark")) {
+      document.documentElement.classList.add("dark");
+    }
 
     checkTheme();
     const observer = new MutationObserver(checkTheme);
@@ -270,8 +276,8 @@ const Hero = () => {
                           key={`page_${index + 1}`}
                           pageNumber={index + 1}
                           width={pdfWidth || undefined}
-                          renderTextLayer={false}
-                          renderAnnotationLayer={false}
+                          renderTextLayer={true}
+                          renderAnnotationLayer={true}
                           className="shadow-lg"
                         />
                       ))}
