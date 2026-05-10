@@ -10,7 +10,7 @@ const Footer = () => {
     },
     { 
       icon: Linkedin, 
-      href: "https://www.linkedin.com/in/lescy-g-caadlawon2004", 
+      href: "www.linkedin.com/in/lescycaadlawon", 
       label: "LinkedIn" 
     },
     { 
