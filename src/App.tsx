@@ -10,6 +10,7 @@ import AllProjectsPage from "./components/AllProjectsPage";
 import PresentationPage from "./pages/PresentationPage";
 import Chatbot from "@/components/Chatbot";
 import ThemeToggle from "@/components/ThemeToggle";
+import OutdatedNotice from "@/components/OutdatedNotice";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <OutdatedNotice />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />

@@ -1,0 +1,105 @@
+/* Outdated Notice Banner Styles */
+.outdated-notice-wrapper {
+  width: 100%;
+  background: linear-gradient(90deg, #ff6b6b, #ee5a6f, #c92a2a);
+  padding: 12px 0;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+  position: relative;
+}
+
+.outdated-notice-banner {
+  display: flex;
+  width: 100%;
+  animation: scroll-left 15s linear infinite;
+}
+
+.outdated-notice-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  white-space: nowrap;
+  font-weight: 600;
+  color: white;
+  font-size: 16px;
+  padding: 0 20px;
+  min-width: max-content;
+  animation: scroll-text 15s linear infinite;
+}
+
+.notice-icon {
+  font-size: 18px;
+  display: inline-block;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.notice-text {
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Duplicate for seamless loop */
+.outdated-notice-banner::after {
+  content: '';
+  display: inline-block;
+  width: 40px;
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100vw);
+  }
+}
+
+@keyframes scroll-text {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100vw);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .outdated-notice-content {
+    font-size: 14px;
+    gap: 12px;
+    padding: 0 16px;
+  }
+
+  .notice-icon {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .outdated-notice-content {
+    font-size: 12px;
+    gap: 8px;
+    padding: 0 12px;
+  }
+
+  .notice-icon {
+    font-size: 14px;
+  }
+
+  .outdated-notice-wrapper {
+    padding: 10px 0;
+  }
+}
