@@ -12,7 +12,7 @@ import "react-pdf/dist/Page/TextLayer.css";
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 // Base + dynamic roles for typing effect
-const baseRole = "BSIT 4th Year";
+const baseRole = "Fresh Graduate";
 const dynamicRoles = ["UI/UX Designer", "Aspiring Software Developer", "Cybersecurity Enthusiast"];
 
 const Hero = () => {
@@ -152,7 +152,7 @@ const Hero = () => {
               className="flex items-center justify-center md:justify-start gap-1 text-sm text-muted-foreground mb-2"
             >
               <MapPin className="w-4 h-4" />
-              <span>Bagamanoc, Catanduanes, Philippines</span>
+              <span>Mandaluyong City, Philippines</span>
             </motion.div>
 
             <motion.div

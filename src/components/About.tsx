@@ -22,7 +22,7 @@ const About = () => {
 
       <div className="space-y-4 text-muted-foreground leading-relaxed">
         <p>
-          Hello! I'm a fresh graduate of BS Information Technology with a keen interest in full stack development
+          Hello! I'm a recent graduate of BS Information Technology with a keen interest in full stack development
           
           and UI/UX design. I blend creativity with technical skills to build meaningful 
           digital experiences that make a difference!
