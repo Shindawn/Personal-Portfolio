@@ -5,10 +5,10 @@ const OutdatedNotice = () => {
     <div className="outdated-notice-card" role="status" aria-live="polite">
       <div className="outdated-notice-header">
         <span className="notice-dot" />
-        <span className="notice-title">System Outdated</span>
+        <span className="notice-title">Portfolio Notice!</span>
       </div>
       <p className="notice-message">
-        This portfolio is currently outdated. A new portfolio is being created! ^^
+        A new portfolio is being created! ^^
       </p>
     </div>
   );
