@@ -8,7 +8,7 @@ const OutdatedNotice = () => {
         <span className="notice-title">System Outdated</span>
       </div>
       <p className="notice-message">
-        This portfolio is currently outdated. A new portfolio is being created.
+        This portfolio is currently outdated. A new portfolio is being created! ^^
       </p>
     </div>
   );
