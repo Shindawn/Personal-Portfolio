@@ -16,13 +16,13 @@ const About = () => {
           <h2>About</h2>
         </div>
         <span className="text-xs px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-semibold whitespace-nowrap">
-          GWA: 1.41
+          GWA: 1.4
         </span>
       </div>
 
       <div className="space-y-4 text-muted-foreground leading-relaxed">
         <p>
-          Hello! I'm a graduating BSIT 4th year student with a keen interest in full stack development
+          Hello! I'm a fresh graduate of BS Information Technology with a keen interest in full stack development
           
           and UI/UX design. I blend creativity with technical skills to build meaningful 
           digital experiences that make a difference!
