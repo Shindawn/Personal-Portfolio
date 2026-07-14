@@ -2,7 +2,7 @@
 .outdated-notice-card {
   position: fixed;
   top: 24px;
-  right: 24px;
+  left: 24px;
   max-width: 320px;
   padding: 16px 18px;
   background: rgba(18, 25, 43, 0.96);
@@ -62,9 +62,8 @@
 @media (max-width: 480px) {
   .outdated-notice-card {
     top: 12px;
-    right: 12px;
-    max-width: 100%;
     left: 12px;
-    right: 12px;
+    max-width: calc(100% - 24px);
+    right: auto;
   }
 }
