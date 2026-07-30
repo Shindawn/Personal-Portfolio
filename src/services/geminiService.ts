@@ -4,6 +4,8 @@
  * and the AI logic (Supabase Edge Functions).
  */
 
+import { sanitizeChatResponse } from "../lib/chatResponseGuard";
+
 // 1. Check if Vercel has the necessary connection info
 // We use the names you provided in your Vercel dashboard
 const CHAT_FUNCTION_URL = import.meta.env.VITE_CHAT_FUNCTION_URL;
@@ -109,7 +111,7 @@ export const getChatResponse = async (userMessage: string): Promise<string> => {
       // AI responded successfully — return the response
       if (data.success && data.response) {
         console.log("🚀 Chatbot: Server responded successfully!");
-        return data.response;
+        return sanitizeChatResponse(data.response);
       }
 
       // Quota exceeded — show notice once, then switch to local only

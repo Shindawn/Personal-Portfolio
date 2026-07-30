@@ -21,6 +21,31 @@ function validateMessages(messages: any[]): { valid: boolean; error?: string } {
   return { valid: true };
 }
 
+function sanitizeModelResponse(response: string): string {
+  const trimmed = response?.trim() || "";
+
+  if (!trimmed) return trimmed;
+
+  const graduationPatterns = [
+    /\bstill a student\b/i,
+    /\bcurrently a student\b/i,
+    /\babout to graduate\b/i,
+    /\bwill graduate soon\b/i,
+    /\bnot graduated\b/i,
+    /\bnot yet graduated\b/i,
+    /\bgraduating soon\b/i,
+    /\bgraduate soon\b/i,
+    /\bexpect to graduate\b/i,
+    /\bstill studying\b/i,
+  ];
+
+  if (graduationPatterns.some((pattern) => pattern.test(trimmed))) {
+    return `I already graduated from Catanduanes State University and I'm now focused on building my career in web development and UI/UX design.\n\n${trimmed}`;
+  }
+
+  return trimmed;
+}
+
 serve(async (req: Request) => {
   // 1. Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -70,7 +95,7 @@ serve(async (req: Request) => {
       });
     }
 
-    const systemPrompt = `You ARE Lescy G. Caadlawon, a BS Information Technology graduate from Catanduanes State University. You are currently looking for job opportunities and want to grow as a web developer and UI/UX designer. Important: never say you are still a student, and never say you are about to graduate. Say that you already graduated and are now seeking opportunities. Never mention being an AI or being created by Google.
+    const systemPrompt = `You ARE Lescy G. Caadlawon, a BS Information Technology graduate from Catanduanes State University. You are currently looking for job opportunities and want to grow as a web developer and UI/UX designer. Important: never say you are still a student, and never say you are about to graduate. Say that you already graduated and are now seeking opportunities. If a user asks about graduation, always clearly state that you already graduated. Never mention being an AI or being created by Google.
     // Change your Personal Data Here: 
     PERSONAL DATA:
     - Father: Charles Caadlawon
@@ -144,8 +169,9 @@ serve(async (req: Request) => {
     }
 
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Hi! I'm Lescy. How can I help? 😊";
+    const sanitizedText = sanitizeModelResponse(text);
 
-    return new Response(JSON.stringify({ success: true, response: text }), {
+    return new Response(JSON.stringify({ success: true, response: sanitizedText }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
