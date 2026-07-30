@@ -10,7 +10,7 @@ export function useChat() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Hi! I'm Lescy's AI assistant. Feel free to ask me about Lescy's skills, experience, projects, or anything else!",
+      content: "Hi! I'm Lescy's AI assistant. Feel free to ask me about Lescy's skills, experience, projects, or current job interests!",
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,7 +33,7 @@ export function useChat() {
       console.error("Chat error:", error);
       const errorMessage: Message = {
         role: "assistant",
-        content: "I apologize, but I'm having trouble responding right now. Please try asking me about Lescy's skills, projects, or experience!",
+        content: "I apologize, but I'm having trouble responding right now. Please try asking me about Lescy's skills, projects, experience, or job interests!",
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {

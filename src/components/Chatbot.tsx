@@ -18,7 +18,7 @@ const Chatbot = () => {
     {
       role: "assistant",
       content:
-        "Hi! I'm Lescy G. Caadlawon. Welcome to my portfolio! Feel free to ask me anything about my work, skills, or projects. 😊",
+        "Hi! I'm Lescy G. Caadlawon. I recently graduated with a BS in Information Technology and I'm currently looking for a job. Feel free to ask me about my work, skills, projects, or experience. 😊",
       timestamp: Date.now(),
     },
   ]);

@@ -24,19 +24,19 @@ let useLocalOnly = false;
 const fallbackQA = [
   {
     keywords: ["hi", "hello", "hey", "introduce", "kamusta"],
-    answer: "Hi! I'm Lescy, a BS Information Technology 4th year student from Catanduanes State University. I'm passionate about web development and UI/UX design. How can I help you?"
+    answer: "Hi! I'm Lescy G. Caadlawon, a BS Information Technology graduate from Catanduanes State University. I'm passionate about web development and UI/UX design, and I'm currently looking for a job. How can I help you?"
   },
   {
     keywords: ["who are you", "sino ka", "about you", "tell me about"],
-    answer: "I'm Lescy G. Caadlawon, a 4th year BS IT student at Catanduanes State University. I specialize in web development (React, TypeScript, Tailwind) and UI/UX design. I'm currently looking for internship opportunities!"
+    answer: "I'm Lescy G. Caadlawon, a BS IT graduate from Catanduanes State University. I specialize in web development (React, TypeScript, Tailwind) and UI/UX design, and I'm actively looking for job opportunities!"
   },
     {
     keywords: ["Parents", "Siblings", "Crush", "Friends", "Personal life"],
     answer: "I prefer to keep my personal details private, but I’m happy to talk about my experience, skills, and the projects I’ve worked on. You can ask me about my background in web development, UI/UX design, or my tech stack!"
   },
   {
-    keywords: ["internship", "ojt", "applied", "company", "hire", "hiring", "looking", "opportunity"],
-    answer: "I'm actively looking for internship/OJT opportunities and open to offers. I can share my documents (resume, endorsements, etc.) and I'm excited to contribute as a web/UI developer."
+    keywords: ["internship", "ojt", "applied", "company", "hire", "hiring", "looking", "opportunity", "job"],
+    answer: "I'm actively looking for job opportunities and open to offers. I can share my resume and discuss how I can contribute as a web/UI developer."
   },
   {
     keywords: ["skills", "technical", "abilities", "tech stack"],
@@ -44,7 +44,7 @@ const fallbackQA = [
   },
   {
     keywords: ["experience", "experiences", "work", "background", "projects", "built"],
-    answer: "I've built a portfolio website (React + TypeScript + Tailwind), a Wedding RSVP site (Framer + Google Scripts), a Community Portal (React/Node.js/Stripe), and a Class Observation Form (Flask). I'm focused on frontend and full-stack student projects."
+    answer: "I've built a portfolio website (React + TypeScript + Tailwind), a Wedding RSVP site (Framer + Google Scripts), a Community Portal (React/Node.js/Stripe), and a Class Observation Form (Flask). I'm focused on practical frontend and full-stack development projects."
   },
   {
     keywords: ["contact", "email", "reach"],
@@ -56,7 +56,7 @@ const fallbackQA = [
   },
   {
     keywords: ["location", "where", "catanduanes"],
-    answer: "I'm from Bagamanoc, Catanduanes, Philippines, and I'm studying at Catanduanes State University."
+    answer: "I'm from Bagamanoc, Catanduanes, Philippines, and I graduated from Catanduanes State University."
   },
 ];
 
