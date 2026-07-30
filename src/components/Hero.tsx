@@ -25,7 +25,7 @@ const Hero = () => {
   // Resume viewer state
   const [isResumeOpen, setIsResumeOpen] = useState(false);
   const resumeOptions = [
-    { label: "Standard Format", url: "/resumes/resume.pdf" },
+    { label: "Standard Format", url: "/resumes/LescyCaadlawon_CV.pdf" },
   ];
   const [selectedResumeIndex, setSelectedResumeIndex] = useState(0);
   const selectedResume = resumeOptions[selectedResumeIndex];
