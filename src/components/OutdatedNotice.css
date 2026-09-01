@@ -42,6 +42,16 @@
   line-height: 1.5;
 }
 
+.notice-message a {
+  color: #fbbf24;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.notice-message a:hover {
+  color: #f59e0b;
+}
+
 @media (max-width: 768px) {
   .outdated-notice-card {
     top: 16px;

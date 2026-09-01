@@ -8,7 +8,10 @@ const OutdatedNotice = () => {
         <span className="notice-title">Portfolio Notice!</span>
       </div>
       <p className="notice-message">
-        A new portfolio is being created! ^^
+        A new portfolio is live! ^^ Visit{' '}
+        <a href="https://lescycaadlawon.tech" target="_blank" rel="noreferrer">
+          lescycaadlawon.tech
+        </a>
       </p>
     </div>
   );
