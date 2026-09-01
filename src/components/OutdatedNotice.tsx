@@ -9,8 +9,8 @@ const OutdatedNotice = () => {
       </div>
       <p className="notice-message">
         A new portfolio is live! ^^ Visit{' '}
-        <a href="https://lescycaadlawon.tech" target="_blank" rel="noreferrer">
-          lescycaadlawon.tech
+        <a href="https://lescygcaadlawon.tech" target="_blank" rel="noreferrer">
+          lescygcaadlawon.tech
         </a>
       </p>
     </div>
